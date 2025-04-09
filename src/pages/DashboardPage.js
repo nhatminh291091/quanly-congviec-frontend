@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
-import AuthContext from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 
 const DashboardPage = () => {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
