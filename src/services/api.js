@@ -1,11 +1,4 @@
-const API = process.env.REACT_APP_API_BASE_URL;
-
-fetch(`${API}/auth/me`, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('token')}`
-  }
-})
-
+const API_URL = process.env.REACT_APP_API_BASE_URL;
 
 export const apiService = {
   get: async (endpoint)  => {
