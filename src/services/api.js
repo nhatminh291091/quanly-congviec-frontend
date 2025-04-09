@@ -1,4 +1,11 @@
-const API_URL = 'https://quanlycongviec.w30s.cc/api';
+const API = process.env.REACT_APP_API_BASE_URL;
+
+fetch(`${API}/auth/me`, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('token')}`
+  }
+})
+
 
 export const apiService = {
   get: async (endpoint)  => {
