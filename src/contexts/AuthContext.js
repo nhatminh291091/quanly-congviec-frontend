@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
+	console.log("🔍 Phản hồi từ backend /auth/google:", data);
 
       if (data.token) {
         localStorage.setItem('token', data.token);
