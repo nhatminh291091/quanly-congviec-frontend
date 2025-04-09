@@ -9,7 +9,7 @@ const LoginPage = () => {
   useEffect(() => {
     /* global google */
     window.google.accounts.id.initialize({
-      client_id: 52169199368-47af28pkqfq60a01jn23u6ssiad99o51.apps.googleusercontent.com, // 👈 điền Client ID của bạn
+      client_id: "52169199368-47af28pkqfq60a01jn23u6ssiad99o51.apps.googleusercontent.com", // 👈 điền Client ID của bạn
       callback: handleCredentialResponse,
     });
 
