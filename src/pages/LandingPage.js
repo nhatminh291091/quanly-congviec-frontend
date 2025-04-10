@@ -13,7 +13,7 @@ const LandingPage = () => {
   return (
     <div className="landing-container">
       <h1>Hệ Thống Quản Lý Công Việc</h1>
-      <p>Trường Đại học Công nghiệp Hà Nội</p>
+      <p>Phòng Thanh tra giáo dục</p>
       <button className="access-button" onClick={handleAccess}>Truy cập hệ thống</button>
     </div>
   );
