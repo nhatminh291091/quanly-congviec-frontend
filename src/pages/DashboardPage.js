@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import { apiService } from '../services/api';
@@ -46,7 +47,11 @@ const DashboardPage = () => {
             <p className="text-gray-500 italic">Không có dữ liệu công việc.</p>
           ) : (
             <div className="overflow-x-auto rounded-xl shadow border border-gray-200 bg-white">
+<<<<<<< HEAD
               <table className="min-w-full table-auto border border-gray-300 border-collapse">
+=======
+              <table className="min-w-full border-collapse table-auto text-sm text-left text-slate-800">
+>>>>>>> 6c072e6b (hoan thien Dashboard)
                 <thead className="bg-indigo-100 text-slate-900 uppercase text-xs">
                   <tr>
                     <th className="px-4 py-3 border">#</th>
