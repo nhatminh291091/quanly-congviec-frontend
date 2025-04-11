@@ -44,27 +44,37 @@ const DashboardPage = () => {
           ) : taskList.length === 0 ? (
             <p className="text-gray-500 italic">Không có dữ liệu công việc.</p>
           ) : (
-            <div className="overflow-auto rounded-lg shadow">
-              <table className="min-w-full bg-white text-sm">
-                <thead className="bg-blue-100 text-gray-700">
+            <div className="overflow-x-auto rounded-xl shadow border border-gray-200">
+              <table className="min-w-full text-sm text-left text-gray-700 bg-white">
+                <thead className="bg-blue-50 text-gray-800 text-sm uppercase">
                   <tr>
-                    <th className="py-2 px-4 text-left">STT</th>
-                    <th className="py-2 px-4 text-left">Tên công việc</th>
-                    <th className="py-2 px-4 text-left">Lĩnh vực</th>
-                    <th className="py-2 px-4 text-left">Tiến độ</th>
-                    <th className="py-2 px-4 text-left">Người chủ trì</th>
-                    <th className="py-2 px-4 text-left">Thời gian hoàn thành</th>
+                    <th className="px-4 py-3 whitespace-nowrap">STT</th>
+                    <th className="px-4 py-3 whitespace-nowrap w-[350px]">Tên công việc</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Lĩnh vực</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Tiến độ</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Người chủ trì</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Thời gian hoàn thành</th>
                   </tr>
                 </thead>
                 <tbody>
                   {taskList.map((task, index) => (
-                    <tr key={index} className="border-b hover:bg-gray-50">
-                      <td className="py-2 px-4">{task['STT'] || index + 1}</td>
-                      <td className="py-2 px-4">{task['Tên công việc'] || '...'}</td>
-                      <td className="py-2 px-4">{task['Các lĩnh vực công tác'] || ''}</td>
-                      <td className="py-2 px-4">{task['Tiến độ'] || ''}</td>
-                      <td className="py-2 px-4">{task['Người chủ trì'] || ''}</td>
-                      <td className="py-2 px-4">{task['Thời gian hoàn thành'] || ''}</td>
+                    <tr key={index} className="border-t hover:bg-gray-50 transition">
+                      <td className="px-4 py-3">{index + 1}</td>
+                      <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
+                      <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
+                      <td className="px-4 py-3">
+                        <span className={
+                          `inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                            task['Tiến độ']?.toLowerCase().includes('hoàn thành') ? 'bg-green-100 text-green-800' :
+                            task['Tiến độ']?.toLowerCase().includes('chậm') ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`
+                        }>
+                          {task['Tiến độ']}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">{task['Người chủ trì']}</td>
+                      <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
                     </tr>
                   ))}
                 </tbody>
