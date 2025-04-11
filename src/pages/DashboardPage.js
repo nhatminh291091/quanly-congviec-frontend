@@ -46,7 +46,7 @@ const DashboardPage = () => {
             <p className="text-gray-500 italic">Không có dữ liệu công việc.</p>
           ) : (
             <div className="overflow-x-auto rounded-xl shadow border border-gray-200 bg-white">
-              <table className="min-w-full border-collapse table-auto text-sm text-left text-slate-800">
+              <table className="min-w-full table-auto border border-gray-300 border-collapse">
                 <thead className="bg-indigo-100 text-slate-900 uppercase text-xs">
                   <tr>
                     <th className="px-4 py-3 border">#</th>
