@@ -60,4 +60,8 @@ const StatsIcon = () => (
   </svg>
 );
 
+<<<<<<< HEAD
 export default Sidebar;
+=======
+export default Sidebar;
+>>>>>>> 2eb4b3fa (cap nhat giao dien)
