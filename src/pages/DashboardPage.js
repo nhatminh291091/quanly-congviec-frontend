@@ -28,53 +28,53 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-blue-50 to-purple-100">
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       <div className="flex flex-col flex-1 overflow-hidden">
-        <header className="flex justify-between items-center px-6 py-4 bg-white border-b-4 border-blue-600">
-          <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
-          <button onClick={toggleSidebar} className="text-blue-600 font-medium hover:underline">
+        <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md">
+          <h1 className="text-2xl font-bold">📊 Bảng điều khiển</h1>
+          <button onClick={toggleSidebar} className="bg-white text-blue-600 font-medium px-3 py-1 rounded hover:bg-gray-100">
             {sidebarOpen ? 'Ẩn menu' : 'Hiện menu'}
           </button>
         </header>
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">📋 Danh sách công việc được giao</h2>
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">📋 Danh sách công việc được giao</h2>
           {isLoading ? (
             <p className="text-gray-600">Đang tải dữ liệu...</p>
           ) : taskList.length === 0 ? (
             <p className="text-gray-500 italic">Không có dữ liệu công việc.</p>
           ) : (
-            <div className="overflow-x-auto rounded-xl shadow border border-gray-200">
-              <table className="min-w-full text-sm text-left text-gray-700 bg-white">
-                <thead className="bg-blue-50 text-gray-800 text-sm uppercase">
+            <div className="overflow-x-auto rounded-xl shadow-xl border border-gray-300 bg-white">
+              <table className="min-w-full text-sm text-left text-gray-800">
+                <thead className="bg-gradient-to-r from-blue-100 to-indigo-100 text-gray-900 uppercase text-xs">
                   <tr>
-                    <th className="px-4 py-3 whitespace-nowrap">STT</th>
-                    <th className="px-4 py-3 whitespace-nowrap w-[350px]">Tên công việc</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Lĩnh vực</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Tiến độ</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Người chủ trì</th>
-                    <th className="px-4 py-3 whitespace-nowrap">Thời gian hoàn thành</th>
+                    <th className="px-4 py-3 whitespace-nowrap">#</th>
+                    <th className="px-4 py-3 whitespace-nowrap w-[350px]">📝 Tên công việc</th>
+                    <th className="px-4 py-3 whitespace-nowrap">📂 Lĩnh vực</th>
+                    <th className="px-4 py-3 whitespace-nowrap">📈 Tiến độ</th>
+                    <th className="px-4 py-3 whitespace-nowrap">👤 Chủ trì</th>
+                    <th className="px-4 py-3 whitespace-nowrap">📅 Hoàn thành</th>
                   </tr>
                 </thead>
                 <tbody>
                   {taskList.map((task, index) => (
-                    <tr key={index} className="border-t hover:bg-gray-50 transition">
-                      <td className="px-4 py-3">{index + 1}</td>
-                      <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
-                      <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
+                    <tr key={index} className="border-t hover:bg-indigo-50 transition">
+                      <td className="px-4 py-3 font-semibold text-center">{index + 1}</td>
+                      <td className="px-4 py-3 whitespace-pre-wrap break-words font-medium text-gray-700">{task['Tên công việc']}</td>
+                      <td className="px-4 py-3 text-blue-700 font-semibold">{task['Các lĩnh vực công tác']}</td>
                       <td className="px-4 py-3">
                         <span className={
-                          `inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            task['Tiến độ']?.toLowerCase().includes('hoàn thành') ? 'bg-green-100 text-green-800' :
-                            task['Tiến độ']?.toLowerCase().includes('chậm') ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
+                          `inline-block px-2 py-1 rounded-full text-xs font-bold shadow-sm ${
+                            task['Tiến độ']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-900' :
+                            task['Tiến độ']?.toLowerCase().includes('chậm') ? 'bg-red-200 text-red-900' :
+                            'bg-yellow-200 text-yellow-900'
                           }`
                         }>
                           {task['Tiến độ']}
                         </span>
                       </td>
-                      <td className="px-4 py-3">{task['Người chủ trì']}</td>
-                      <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
+                      <td className="px-4 py-3 text-gray-700">{task['Người chủ trì']}</td>
+                      <td className="px-4 py-3 text-gray-700">{task['Thời gian hoàn thành']}</td>
                     </tr>
                   ))}
                 </tbody>
