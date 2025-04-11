@@ -38,13 +38,13 @@ const DashboardPage = () => {
           </button>
         </header>
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">Danh sách công việc được giao</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">📋 Danh sách công việc được giao</h2>
           {isLoading ? (
             <p className="text-gray-600">Đang tải dữ liệu...</p>
           ) : taskList.length === 0 ? (
             <p className="text-gray-500 italic">Không có dữ liệu công việc.</p>
           ) : (
-            <div className="overflow-auto rounded-lg shadow-md">
+            <div className="overflow-auto rounded-lg shadow">
               <table className="min-w-full bg-white text-sm">
                 <thead className="bg-blue-100 text-gray-700">
                   <tr>
@@ -59,12 +59,12 @@ const DashboardPage = () => {
                 <tbody>
                   {taskList.map((task, index) => (
                     <tr key={index} className="border-b hover:bg-gray-50">
-                      <td className="py-2 px-4">{task.STT}</td>
-                      <td className="py-2 px-4">{task['Tên công việc']}</td>
-                      <td className="py-2 px-4">{task['Các lĩnh vực công tác']}</td>
-                      <td className="py-2 px-4">{task['Tiến độ']}</td>
-                      <td className="py-2 px-4">{task['Người chủ trì']}</td>
-                      <td className="py-2 px-4">{task['Thời gian hoàn thành']}</td>
+                      <td className="py-2 px-4">{task['STT'] || index + 1}</td>
+                      <td className="py-2 px-4">{task['Tên công việc'] || '...'}</td>
+                      <td className="py-2 px-4">{task['Các lĩnh vực công tác'] || ''}</td>
+                      <td className="py-2 px-4">{task['Tiến độ'] || ''}</td>
+                      <td className="py-2 px-4">{task['Người chủ trì'] || ''}</td>
+                      <td className="py-2 px-4">{task['Thời gian hoàn thành'] || ''}</td>
                     </tr>
                   ))}
                 </tbody>
