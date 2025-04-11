@@ -45,31 +45,39 @@ const DashboardPage = () => {
           ) : taskList.length === 0 ? (
             <p className="text-gray-500 italic">Không có dữ liệu công việc.</p>
           ) : (
-            <div className="grid gap-4">
-              <div className="hidden md:grid grid-cols-6 gap-4 bg-indigo-100 text-indigo-900 font-semibold px-4 py-2 rounded shadow-sm uppercase text-sm">
-                <div>#</div>
-                <div className="col-span-2">Tên công việc</div>
-                <div>Lĩnh vực</div>
-                <div>Tiến độ</div>
-                <div>Hoàn thành</div>
-              </div>
-              {taskList.map((task, index) => (
-                <div key={index} className="grid grid-cols-6 gap-4 bg-white shadow hover:shadow-md transition rounded px-4 py-3 text-sm text-slate-800">
-                  <div className="font-semibold text-center">{index + 1}</div>
-                  <div className="col-span-2 whitespace-pre-wrap break-words leading-snug">{task['Tên công việc']}</div>
-                  <div>{task['Các lĩnh vực công tác']}</div>
-                  <div>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-bold ${
-                      task['Tiến độ']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
-                      task['Tiến độ']?.toLowerCase().includes('chậm') ? 'bg-red-200 text-red-800' :
-                      'bg-yellow-200 text-yellow-800'
-                    }`}>
-                      {task['Tiến độ']}
-                    </span>
-                  </div>
-                  <div>{task['Thời gian hoàn thành']}</div>
-                </div>
-              ))}
+            <div className="overflow-x-auto rounded-xl shadow border border-gray-200 bg-white">
+              <table className="min-w-full border-collapse table-auto text-sm text-left text-slate-800">
+                <thead className="bg-indigo-100 text-slate-900 uppercase text-xs">
+                  <tr>
+                    <th className="px-4 py-3 border">#</th>
+                    <th className="px-4 py-3 border w-[380px]">Tên công việc</th>
+                    <th className="px-4 py-3 border">Lĩnh vực</th>
+                    <th className="px-4 py-3 border">Tiến độ</th>
+                    <th className="px-4 py-3 border">Chủ trì</th>
+                    <th className="px-4 py-3 border">Hoàn thành</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {taskList.map((task, index) => (
+                    <tr key={index} className="hover:bg-indigo-50">
+                      <td className="px-4 py-3 border text-center font-semibold">{index + 1}</td>
+                      <td className="px-4 py-3 border whitespace-pre-wrap break-words leading-snug">{task['Tên công việc']}</td>
+                      <td className="px-4 py-3 border">{task['Các lĩnh vực công tác']}</td>
+                      <td className="px-4 py-3 border">
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-bold ${
+                          task['Tiến độ']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
+                          task['Tiến độ']?.toLowerCase().includes('chậm') ? 'bg-red-200 text-red-800' :
+                          'bg-yellow-200 text-yellow-800'
+                        }`}>
+                          {task['Tiến độ']}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 border">{task['Người chủ trì']}</td>
+                      <td className="px-4 py-3 border">{task['Thời gian hoàn thành']}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </main>
