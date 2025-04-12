@@ -9,7 +9,10 @@ const DashboardPage = () => {
     const fetchAllTasks = async () => {
   try {
     const rawData = await apiService.get('api/tasks/all');
-    
+    console.log("📦 rawData", rawData);
+	if (!Array.isArray(rawData)) {
+      throw new Error("Dữ liệu trả về không đúng định dạng mảng");
+    }
     const [headerRow, ...dataRows] = rawData;
     const tasks = dataRows.map(row =>
       Object.fromEntries(row.map((cell, idx) => [headerRow[idx], cell]))
