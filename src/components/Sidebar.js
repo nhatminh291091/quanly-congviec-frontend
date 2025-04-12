@@ -26,7 +26,9 @@ const Sidebar = () => {
               }`}
             >
               <span>{item.icon}</span>
-              <span className="group-hover:inline hidden whitespace-nowrap">{item.label}</span>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                {item.label}
+              </span>
             </li>
           </Link>
         ))}
