@@ -6,12 +6,11 @@ module.exports = {
     'shadow-md', 'shadow-xl',
     'bg-white', 'bg-gradient-to-br', 'from-pink-500', 'to-indigo-600',
     'hover:bg-gray-100', 'px-4', 'py-2', 'rounded', 'text-center',
-    'flex', 'justify-between', 'items-center', 'min-h-screen'
-    'text-white', 'text-black', 'text-2xl', 'text-3xl', 'font-extrabold',
-    'tracking-wide', 'tracking-tight', 'shadow-md', 'shadow-xl',
-    'bg-gradient-to-r', 'bg-gradient-to-br', 'from-pink-500',
-    'to-indigo-600', 'bg-white', 'text-indigo-600', 'hover:bg-gray-100'
+    'flex', 'justify-between', 'items-center', 'min-h-screen',
+    'bg-gradient-to-r'
   ],
-  theme: { extend: {} },
+  theme: {
+    extend: {},
+  },
   plugins: [],
 };
