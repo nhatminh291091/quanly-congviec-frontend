@@ -6,21 +6,17 @@ const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAllTasks = async () => {
+   const fetchAllTasks = async () => {
   try {
     const rawData = await apiService.get('api/tasks/all');
     console.log("📦 rawData", rawData);
-	if (!Array.isArray(rawData)) {
-      throw new Error("Dữ liệu trả về không đúng định dạng mảng");
-    }
-    const [headerRow, ...dataRows] = rawData;
-    const tasks = dataRows.map(row =>
-      Object.fromEntries(row.map((cell, idx) => [headerRow[idx], cell]))
-    );
+
+    // Làm phẳng mảng 2 cấp: [[{...}], [{...}], ...] → [{...}, {...}, ...]
+    const tasks = rawData.flat();
 
     setTaskList(tasks);
   } catch (error) {
-    console.error('Lỗi khi lấy danh sách công việc:', error);
+    console.error('❌ Lỗi khi lấy danh sách công việc:', error);
     setTaskList([]);
   } finally {
     setIsLoading(false);
