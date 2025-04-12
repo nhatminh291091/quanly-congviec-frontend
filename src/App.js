@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
 import Sidebar from './components/Sidebar';
+import KeHoachPage from './pages/KeHoachPage';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <main className="flex-1 p-6 overflow-y-auto">
           <Routes>
             <Route path="/dashboard" element={<DashboardPage />} />
+	    <Route path="/ke-hoach" element={<KeHoachPage />} />
           </Routes>
         </main>
       </div>
