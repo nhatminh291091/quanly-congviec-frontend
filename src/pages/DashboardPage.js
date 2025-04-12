@@ -7,16 +7,22 @@ const DashboardPage = () => {
 
   useEffect(() => {
     const fetchAllTasks = async () => {
-      try {
-        const data = await apiService.get('api/tasks/all');
-        setTaskList(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách công việc:', error);
-        setTaskList([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  try {
+    const rawData = await apiService.get('api/tasks/all');
+    
+    const [headerRow, ...dataRows] = rawData;
+    const tasks = dataRows.map(row =>
+      Object.fromEntries(row.map((cell, idx) => [headerRow[idx], cell]))
+    );
+
+    setTaskList(tasks);
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách công việc:', error);
+    setTaskList([]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
     fetchAllTasks();
   }, []);
