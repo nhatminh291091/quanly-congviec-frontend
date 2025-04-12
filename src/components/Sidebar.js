@@ -16,11 +16,16 @@ const Sidebar = () => {
 
   return (
     <div
-      className="group fixed top-0 left-0 h-full bg-gradient-to-b from-indigo-500 to-purple-500 text-white
-      transition-all duration-300 ease-in-out w-[60px] hover:w-[220px] z-10 shadow-lg overflow-hidden"
+      className="group fixed top-0 left-0 h-full z-10 bg-gradient-to-b from-indigo-500 to-purple-500 text-white 
+      transition-all duration-300 shadow-lg overflow-hidden"
+      style={{ width: '60px' }}
+      onMouseEnter={(e) => e.currentTarget.style.width = '220px'}
+      onMouseLeave={(e) => e.currentTarget.style.width = '60px'}
     >
       <div className="p-4 text-center">
-        <span className="block text-xs font-semibold">🌈 Thanh điều khiển</span>
+        <span className="block text-xs font-semibold whitespace-nowrap">
+          🌈 Thanh điều khiển
+        </span>
       </div>
 
       <ul className="flex flex-col gap-2 mt-6 px-2">
@@ -32,7 +37,7 @@ const Sidebar = () => {
             >
               <span className="min-w-[20px]">{item.icon}</span>
               <span
-                className="opacity-0 group-hover:opacity-100 group-hover:inline-block transition-all duration-300"
+                className="whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:ml-1 transition-all duration-300"
               >
                 {item.name}
               </span>
