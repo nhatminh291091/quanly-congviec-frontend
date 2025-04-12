@@ -12,7 +12,8 @@ function App() {
         <Sidebar />
         <main className="flex-1 p-6 overflow-y-auto">
           <Routes>
-            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/" element={<DashboardPage />} />
+	    <Route path="/dashboard" element={<DashboardPage />} />
 	    <Route path="/ke-hoach" element={<KeHoachPage />} />
           </Routes>
         </main>
