@@ -14,8 +14,6 @@ const DashboardPage = () => {
     const fetchAllTasks = async () => {
       try {
         const rawData = await apiService.get('api/tasks/all');
-        console.log("📦 rawData", rawData);
-
         const tasks = rawData.flat();
         setTaskList(tasks);
       } catch (error) {
@@ -33,10 +31,24 @@ const DashboardPage = () => {
     (!filterLinhVuc || task['Các lĩnh vực công tác'] === filterLinhVuc) &&
     (!filterChuTri || task['Người chủ trì'] === filterChuTri) &&
     (!filterHoanThanh || task['Thời gian hoàn thành'] === filterHoanThanh) &&
-    (!filterDanhGia || task['Đánh giá kết quả']?.includes(filterDanhGia))
+    (!filterDanhGia ||
+      (filterDanhGia === 'Chưa đánh giá' && !task['Đánh giá kết quả']) ||
+      (task['Đánh giá kết quả']?.includes(filterDanhGia)))
   );
 
-  const unique = (arr, key) => Array.from(new Set(arr.map(item => item[key])));
+  const unique = (arr, key) => Array.from(new Set(arr.map(item => item[key]).filter(Boolean)));
+
+  const isCurrentMonth = (dateStr) => {
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const today = new Date();
+    return month === today.getMonth() + 1 && year === today.getFullYear();
+  };
+
+  const isPastMonth = (dateStr) => {
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const today = new Date();
+    return year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth() + 1);
+  };
 
   return (
     <div className="flex flex-col flex-1">
@@ -63,8 +75,8 @@ const DashboardPage = () => {
               <thead className="bg-gradient-to-r from-blue-200 to-indigo-300 text-indigo-900 uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3 text-left">#</th>
-                  <th className="px-4 py-3 text-left w-[180px]">Tên công việc</th>
-                  <th className="px-4 py-3 text-left">Lĩnh vực</th>
+                  <th className="px-4 py-3 text-left w-[140px]">Tên công việc</th>
+                  <th className="px-4 py-3 text-left w-[200px]">Lĩnh vực</th>
                   <th className="px-4 py-3 text-left">Tiến độ</th>
                   <th className="px-4 py-3 text-left w-[240px]">Chủ trì</th>
                   <th className="px-4 py-3 text-left">Hoàn thành</th>
@@ -94,7 +106,7 @@ const DashboardPage = () => {
                   <th>
                     <select className="w-full px-2 py-1 border rounded" value={filterDanhGia} onChange={e => setFilterDanhGia(e.target.value)}>
                       <option value="">Tất cả</option>
-                      {unique(taskList, 'Đánh giá kết quả').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                      {['Hoàn thành', 'Theo tiến độ', 'Chậm tiến độ', 'Không hoàn thành', 'Chưa đánh giá'].map((v, i) => <option key={i} value={v}>{v}</option>)}
                     </select>
                   </th>
                 </tr>
@@ -104,17 +116,9 @@ const DashboardPage = () => {
                   <tr key={index} className="hover:bg-indigo-50 transition">
                     <td className="px-4 py-3 font-medium text-center">{index + 1}</td>
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
-                    <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
-                        task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
-      task['Đánh giá kết quả']?.toLowerCase().includes('tiến độ') ? 'bg-blue-200 text-blue-800' :
-      task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
-      task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
-      'bg-gray-100 text-gray-500'
-                      }`}>
-                        {task['Tiến độ']}
-                      </span>
+                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Các lĩnh vực công tác']}</td>
+                    <td className={`px-4 py-3 text-sm ${isCurrentMonth(task['Tiến độ']) ? 'bg-yellow-100 text-yellow-800 font-medium' : isPastMonth(task['Tiến độ']) ? 'bg-gray-100 border border-gray-400 text-gray-700' : ''}`}>
+                      {task['Tiến độ']}
                     </td>
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Người chủ trì']}</td>
                     <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
@@ -122,7 +126,7 @@ const DashboardPage = () => {
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
                         ${
                           task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
-                          task['Đánh giá kết quả']?.toLowerCase().includes('tiến độ') ? 'bg-blue-200 text-blue-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
                           'bg-gray-100 text-gray-500'
