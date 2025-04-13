@@ -10,7 +10,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen flex bg-gradient-to-br from-blue-50 to-purple-100 transition-all duration-300">
-        <Sidebar onToggle={setSidebarExpanded} />
+        <Sidebar onToggle={setSidebarExpanded} sidebarExpanded={sidebarExpanded} />
         <main
           className="p-6 transition-all duration-300"
           style={{ marginLeft: sidebarExpanded ? 220 : 60 }}
