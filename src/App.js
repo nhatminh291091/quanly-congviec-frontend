@@ -1,20 +1,24 @@
-// 📄 App.js - Giao diện tổng thể
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import DashboardPage from './pages/DashboardPage';
 import Sidebar from './components/Sidebar';
+import DashboardPage from './pages/DashboardPage';
 import KeHoachPage from './pages/KeHoachPage';
 
 function App() {
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+
   return (
     <Router>
-      <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-purple-100">
-        <Sidebar />
-        <main className="flex-1 p-6 overflow-y-auto">
+      <div className="min-h-screen flex bg-gradient-to-br from-blue-50 to-purple-100 transition-all duration-300">
+        <Sidebar onToggle={setSidebarExpanded} />
+        <main
+          className="p-6 transition-all duration-300"
+          style={{ marginLeft: sidebarExpanded ? 220 : 60 }}
+        >
           <Routes>
             <Route path="/" element={<DashboardPage />} />
-	    <Route path="/dashboard" element={<DashboardPage />} />
-	    <Route path="/ke-hoach" element={<KeHoachPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/ke-hoach" element={<KeHoachPage />} />
           </Routes>
         </main>
       </div>
