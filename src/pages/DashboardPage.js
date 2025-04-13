@@ -74,7 +74,19 @@ const DashboardPage = () => {
                     </td>
                     <td className="px-4 py-3">{task['Người chủ trì']}</td>
                     <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
-                    <td className="px-4 py-3 whitespace-pre-wrap break-words text-sm">{task['Đánh giá kết quả']}</td>
+                    <td className="px-4 py-3">
+  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
+    ${
+      task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
+      task['Đánh giá kết quả']?.toLowerCase().includes('tiến độ') ? 'bg-blue-200 text-blue-800' :
+      task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
+      task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
+      'bg-gray-100 text-gray-500'
+    }`
+  }>
+    {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
+  </span>
+</td>
                   </tr>
                 ))}
               </tbody>
