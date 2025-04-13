@@ -117,9 +117,19 @@ const DashboardPage = () => {
                     <td className="px-4 py-3 font-medium text-center">{index + 1}</td>
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Các lĩnh vực công tác']}</td>
-                    <td className={`px-4 py-3 text-sm ${isCurrentMonth(task['Tiến độ']) ? 'bg-yellow-100 text-yellow-800 font-medium' : isPastMonth(task['Tiến độ']) ? 'bg-gray-100 border border-gray-400 text-gray-700' : ''}`}>
-                      {task['Tiến độ']}
-                    </td>
+                    <td className="px-4 py-3 text-sm">
+  <span
+    className={`inline-block px-3 py-1 rounded-full text-xs font-medium
+      ${isCurrentMonth(task['Tiến độ'])
+        ? 'bg-yellow-100 text-yellow-800'
+        : isPastMonth(task['Tiến độ'])
+        ? 'bg-gray-100 border border-gray-400 text-gray-700'
+        : ''}`}
+  >
+    {task['Tiến độ']}
+  </span>
+</td>
+
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Người chủ trì']}</td>
                     <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
                     <td className="px-4 py-3">
