@@ -5,6 +5,11 @@ const DashboardPage = () => {
   const [taskList, setTaskList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [filterLinhVuc, setFilterLinhVuc] = useState('');
+  const [filterChuTri, setFilterChuTri] = useState('');
+  const [filterHoanThanh, setFilterHoanThanh] = useState('');
+  const [filterDanhGia, setFilterDanhGia] = useState('');
+
   useEffect(() => {
     const fetchAllTasks = async () => {
       try {
@@ -24,6 +29,15 @@ const DashboardPage = () => {
     fetchAllTasks();
   }, []);
 
+  const filteredTasks = taskList.filter(task =>
+    (!filterLinhVuc || task['Các lĩnh vực công tác'] === filterLinhVuc) &&
+    (!filterChuTri || task['Người chủ trì'] === filterChuTri) &&
+    (!filterHoanThanh || task['Thời gian hoàn thành'] === filterHoanThanh) &&
+    (!filterDanhGia || task['Đánh giá kết quả']?.includes(filterDanhGia))
+  );
+
+  const unique = (arr, key) => Array.from(new Set(arr.map(item => item[key])));
+
   return (
     <div className="flex flex-col flex-1">
       <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white shadow-md">
@@ -36,12 +50,12 @@ const DashboardPage = () => {
         </h2>
 
         <p className="text-sm text-gray-500 italic mb-4">
-          Tổng số công việc: {taskList.length}
+          Tổng số công việc: {filteredTasks.length}
         </p>
 
         {isLoading ? (
           <p className="text-gray-600">Đang tải dữ liệu...</p>
-        ) : taskList.length === 0 ? (
+        ) : filteredTasks.length === 0 ? (
           <p className="text-gray-500 italic">Không có dữ liệu công việc.</p>
         ) : (
           <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
@@ -49,16 +63,44 @@ const DashboardPage = () => {
               <thead className="bg-gradient-to-r from-blue-200 to-indigo-300 text-indigo-900 uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3 text-left">#</th>
-                  <th className="px-4 py-3 text-left w-[300px]">Tên công việc</th>
+                  <th className="px-4 py-3 text-left w-[150px]">Tên công việc</th>
                   <th className="px-4 py-3 text-left">Lĩnh vực</th>
                   <th className="px-4 py-3 text-left">Tiến độ</th>
-                  <th className="px-4 py-3 text-left">Chủ trì</th>
+                  <th className="px-4 py-3 text-left w-[150px]">Chủ trì</th>
                   <th className="px-4 py-3 text-left">Hoàn thành</th>
                   <th className="px-4 py-3 text-left">Đánh giá</th>
                 </tr>
+                <tr className="bg-white text-gray-700 text-xs">
+                  <th></th><th></th>
+                  <th>
+                    <select className="w-full px-2 py-1 border rounded" value={filterLinhVuc} onChange={e => setFilterLinhVuc(e.target.value)}>
+                      <option value="">Tất cả</option>
+                      {unique(taskList, 'Các lĩnh vực công tác').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                    </select>
+                  </th>
+                  <th></th>
+                  <th>
+                    <select className="w-full px-2 py-1 border rounded" value={filterChuTri} onChange={e => setFilterChuTri(e.target.value)}>
+                      <option value="">Tất cả</option>
+                      {unique(taskList, 'Người chủ trì').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                    </select>
+                  </th>
+                  <th>
+                    <select className="w-full px-2 py-1 border rounded" value={filterHoanThanh} onChange={e => setFilterHoanThanh(e.target.value)}>
+                      <option value="">Tất cả</option>
+                      {unique(taskList, 'Thời gian hoàn thành').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                    </select>
+                  </th>
+                  <th>
+                    <select className="w-full px-2 py-1 border rounded" value={filterDanhGia} onChange={e => setFilterDanhGia(e.target.value)}>
+                      <option value="">Tất cả</option>
+                      {unique(taskList, 'Đánh giá kết quả').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                    </select>
+                  </th>
+                </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {taskList.map((task, index) => (
+                {filteredTasks.map((task, index) => (
                   <tr key={index} className="hover:bg-indigo-50 transition">
                     <td className="px-4 py-3 font-medium text-center">{index + 1}</td>
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
@@ -75,18 +117,17 @@ const DashboardPage = () => {
                     <td className="px-4 py-3">{task['Người chủ trì']}</td>
                     <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
                     <td className="px-4 py-3">
-  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
-    ${
-      task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
-      task['Đánh giá kết quả']?.toLowerCase().includes('tiến độ') ? 'bg-blue-200 text-blue-800' :
-      task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
-      task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
-      'bg-gray-100 text-gray-500'
-    }`
-  }>
-    {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
-  </span>
-</td>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
+                        ${
+                          task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('tiến độ') ? 'bg-blue-200 text-blue-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
+                          'bg-gray-100 text-gray-500'
+                        }`}>
+                        {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
