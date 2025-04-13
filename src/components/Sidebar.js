@@ -32,7 +32,9 @@ const Sidebar = ({ onToggle }) => {
         {menu.map((item, idx) => (
           <Link key={idx} to={item.path}>
             <li
-              className={\`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 \${location.pathname === item.path ? 'bg-indigo-700' : 'hover:bg-indigo-600'}\`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
+                location.pathname === item.path ? 'bg-indigo-700' : 'hover:bg-indigo-600'
+              }`}
             >
               <span className="min-w-[20px]">{item.icon}</span>
               <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:inline-block transition-all duration-300">
