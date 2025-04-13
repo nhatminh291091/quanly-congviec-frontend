@@ -6,22 +6,20 @@ const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-   const fetchAllTasks = async () => {
-  try {
-    const rawData = await apiService.get('api/tasks/all');
-    console.log("📦 rawData", rawData);
+    const fetchAllTasks = async () => {
+      try {
+        const rawData = await apiService.get('api/tasks/all');
+        console.log("📦 rawData", rawData);
 
-    // Làm phẳng mảng 2 cấp: [[{...}], [{...}], ...] → [{...}, {...}, ...]
-    const tasks = rawData.flat();
-
-    setTaskList(tasks);
-  } catch (error) {
-    console.error('❌ Lỗi khi lấy danh sách công việc:', error);
-    setTaskList([]);
-  } finally {
-    setIsLoading(false);
-  }
-};
+        const tasks = rawData.flat();
+        setTaskList(tasks);
+      } catch (error) {
+        console.error('❌ Lỗi khi lấy danh sách công việc:', error);
+        setTaskList([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     fetchAllTasks();
   }, []);
@@ -36,9 +34,11 @@ const DashboardPage = () => {
         <h2 className="text-2xl font-bold text-indigo-700 mb-6 flex items-center gap-2">
           📋 <span>Danh sách công việc được giao</span>
         </h2>
-<p className="text-sm text-gray-500 italic mb-4">
-  Tổng số công việc: {taskList.length}
-</p>
+
+        <p className="text-sm text-gray-500 italic mb-4">
+          Tổng số công việc: {taskList.length}
+        </p>
+
         {isLoading ? (
           <p className="text-gray-600">Đang tải dữ liệu...</p>
         ) : taskList.length === 0 ? (
@@ -48,21 +48,22 @@ const DashboardPage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gradient-to-r from-blue-200 to-indigo-300 text-indigo-900 uppercase text-xs">
                 <tr>
-                  <th className="px-6 py-3 text-left">#</th>
-                  <th className="px-6 py-3 text-left w-[400px]">Tên công việc</th>
-                  <th className="px-6 py-3 text-left">Lĩnh vực</th>
-                  <th className="px-6 py-3 text-left">Tiến độ</th>
-                  <th className="px-6 py-3 text-left">Chủ trì</th>
-                  <th className="px-6 py-3 text-left">Hoàn thành</th>
+                  <th className="px-4 py-3 text-left">#</th>
+                  <th className="px-4 py-3 text-left w-[300px]">Tên công việc</th>
+                  <th className="px-4 py-3 text-left">Lĩnh vực</th>
+                  <th className="px-4 py-3 text-left">Tiến độ</th>
+                  <th className="px-4 py-3 text-left">Chủ trì</th>
+                  <th className="px-4 py-3 text-left">Hoàn thành</th>
+                  <th className="px-4 py-3 text-left">Đánh giá</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {taskList.map((task, index) => (
                   <tr key={index} className="hover:bg-indigo-50 transition">
-                    <td className="px-6 py-4 font-medium text-center">{index + 1}</td>
-                    <td className="px-6 py-4 whitespace-pre-wrap break-words leading-snug">{task['Tên công việc']}</td>
-                    <td className="px-6 py-4">{task['Các lĩnh vực công tác']}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3 font-medium text-center">{index + 1}</td>
+                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
+                    <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
+                    <td className="px-4 py-3">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
                         task['Tiến độ']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
                         task['Tiến độ']?.toLowerCase().includes('chậm') ? 'bg-red-200 text-red-800' :
@@ -71,8 +72,9 @@ const DashboardPage = () => {
                         {task['Tiến độ']}
                       </span>
                     </td>
-                    <td className="px-6 py-4">{task['Người chủ trì']}</td>
-                    <td className="px-6 py-4">{task['Thời gian hoàn thành']}</td>
+                    <td className="px-4 py-3">{task['Người chủ trì']}</td>
+                    <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
+                    <td className="px-4 py-3 whitespace-pre-wrap break-words text-sm">{task['Đánh giá kết quả']}</td>
                   </tr>
                 ))}
               </tbody>

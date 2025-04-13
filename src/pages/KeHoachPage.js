@@ -97,7 +97,7 @@ const KeHoachPage = () => {
   return (
     <div className="flex flex-col flex-1">
       <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-green-400 via-blue-400 to-purple-500 text-white shadow-md">
-        <h1 className="text-2xl font-bold">🗓️ Kế hoạch tháng hiện tại</h1>
+        <h1 className="text-2xl font-bold">🗓️ Kế hoạch tháng</h1>
         <button
           onClick={() => setShowForm(!showForm)}
           className="bg-white text-indigo-600 px-4 py-2 rounded-lg shadow hover:bg-gray-100 font-semibold"
