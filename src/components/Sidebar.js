@@ -4,7 +4,7 @@ import {
   FileText, BarChart3, FileBarChart, CalendarCheck
 } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({ onToggle }) => {
   const location = useLocation();
 
   const menu = [
@@ -16,14 +16,14 @@ const Sidebar = () => {
 
   return (
     <div
-      className="group fixed top-0 left-0 h-full z-10 bg-gradient-to-b from-indigo-500 to-purple-500 text-white 
+      className="group fixed top-0 left-0 h-full z-10 bg-gradient-to-b from-indigo-500 to-purple-500 text-white
       transition-all duration-300 shadow-lg overflow-hidden"
       style={{ width: '60px' }}
-      onMouseEnter={(e) => e.currentTarget.style.width = '220px'}
-      onMouseLeave={(e) => e.currentTarget.style.width = '60px'}
+      onMouseEnter={() => onToggle(true)}
+      onMouseLeave={() => onToggle(false)}
     >
       <div className="p-4 text-center">
-        <span className="block text-xs font-semibold whitespace-nowrap">
+        <span className="block text-[11px] font-semibold leading-tight break-words text-center">
           🌈 Thanh điều khiển
         </span>
       </div>
@@ -32,13 +32,12 @@ const Sidebar = () => {
         {menu.map((item, idx) => (
           <Link key={idx} to={item.path}>
             <li
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 
-              ${location.pathname === item.path ? 'bg-indigo-700' : 'hover:bg-indigo-600'}`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
+                location.pathname === item.path ? 'bg-indigo-700' : 'hover:bg-indigo-600'
+              }`}
             >
               <span className="min-w-[20px]">{item.icon}</span>
-              <span
-                className="whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:ml-1 transition-all duration-300"
-              >
+              <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:inline-block transition-all duration-300">
                 {item.name}
               </span>
             </li>
