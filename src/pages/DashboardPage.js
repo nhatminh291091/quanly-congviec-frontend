@@ -36,7 +36,9 @@ const DashboardPage = () => {
         <h2 className="text-2xl font-bold text-indigo-700 mb-6 flex items-center gap-2">
           📋 <span>Danh sách công việc được giao</span>
         </h2>
-
+<p className="text-sm text-gray-500 italic mb-4">
+  Tổng số công việc: {taskList.length}
+</p>
         {isLoading ? (
           <p className="text-gray-600">Đang tải dữ liệu...</p>
         ) : taskList.length === 0 ? (
