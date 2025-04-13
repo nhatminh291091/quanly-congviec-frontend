@@ -63,10 +63,10 @@ const DashboardPage = () => {
               <thead className="bg-gradient-to-r from-blue-200 to-indigo-300 text-indigo-900 uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3 text-left">#</th>
-                  <th className="px-4 py-3 text-left w-[150px]">Tên công việc</th>
+                  <th className="px-4 py-3 text-left w-[180px]">Tên công việc</th>
                   <th className="px-4 py-3 text-left">Lĩnh vực</th>
                   <th className="px-4 py-3 text-left">Tiến độ</th>
-                  <th className="px-4 py-3 text-left w-[150px]">Chủ trì</th>
+                  <th className="px-4 py-3 text-left w-[240px]">Chủ trì</th>
                   <th className="px-4 py-3 text-left">Hoàn thành</th>
                   <th className="px-4 py-3 text-left">Đánh giá</th>
                 </tr>
@@ -107,14 +107,16 @@ const DashboardPage = () => {
                     <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
-                        task['Tiến độ']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
-                        task['Tiến độ']?.toLowerCase().includes('chậm') ? 'bg-red-200 text-red-800' :
-                        'bg-yellow-200 text-yellow-800'
+                        task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
+      task['Đánh giá kết quả']?.toLowerCase().includes('tiến độ') ? 'bg-blue-200 text-blue-800' :
+      task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
+      task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
+      'bg-gray-100 text-gray-500'
                       }`}>
                         {task['Tiến độ']}
                       </span>
                     </td>
-                    <td className="px-4 py-3">{task['Người chủ trì']}</td>
+                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Người chủ trì']}</td>
                     <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
