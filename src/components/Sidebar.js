@@ -4,7 +4,7 @@ import {
   FileText, BarChart3, FileBarChart, CalendarCheck
 } from 'lucide-react';
 
-const Sidebar = ({ onToggle }) => {
+const Sidebar = ({ onToggle, sidebarExpanded }) => {
   const location = useLocation();
 
   const menu = [
@@ -20,7 +20,7 @@ const Sidebar = ({ onToggle }) => {
       transition-all duration-300 shadow-lg overflow-hidden"
       onMouseEnter={() => onToggle(true)}
       onMouseLeave={() => onToggle(false)}
-      style={{ width: onToggle ? 220 : 60 }}
+      style={{ width: sidebarExpanded ? 220 : 60 }}
     >
       <div className="p-4 text-center">
         <span className="block text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300">
