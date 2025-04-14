@@ -65,71 +65,72 @@ const DashboardPage = () => {
           Tổng số công việc: {filteredTasks.length}
         </p>
 
-        {isLoading ? (
-          <p className="text-gray-600">Đang tải dữ liệu...</p>
-        ) : filteredTasks.length === 0 ? (
-          <p className="text-gray-500 italic">Không có dữ liệu công việc.</p>
-        ) : (
-          <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gradient-to-r from-blue-200 to-indigo-300 text-indigo-900 uppercase text-xs">
+        <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-blue-200 to-indigo-300 text-indigo-900 uppercase text-xs">
+              <tr>
+                <th className="px-4 py-3 text-left">#</th>
+                <th className="px-4 py-3 text-left w-[140px]">Tên công việc</th>
+                <th className="px-4 py-3 text-left w-[200px]">Lĩnh vực</th>
+                <th className="px-4 py-3 text-left">Tiến độ</th>
+                <th className="px-4 py-3 text-left w-[240px]">Chủ trì</th>
+                <th className="px-4 py-3 text-left">Hoàn thành</th>
+                <th className="px-4 py-3 text-left">Đánh giá</th>
+              </tr>
+              <tr className="bg-white text-gray-700 text-xs">
+                <th></th><th></th>
+                <th>
+                  <select className="w-full px-2 py-1 border rounded" value={filterLinhVuc} onChange={e => setFilterLinhVuc(e.target.value)}>
+                    <option value="">Tất cả</option>
+                    {unique(taskList, 'Các lĩnh vực công tác').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                  </select>
+                </th>
+                <th></th>
+                <th>
+                  <select className="w-full px-2 py-1 border rounded" value={filterChuTri} onChange={e => setFilterChuTri(e.target.value)}>
+                    <option value="">Tất cả</option>
+                    {unique(taskList, 'Người chủ trì').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                  </select>
+                </th>
+                <th>
+                  <select className="w-full px-2 py-1 border rounded" value={filterHoanThanh} onChange={e => setFilterHoanThanh(e.target.value)}>
+                    <option value="">Tất cả</option>
+                    {unique(taskList, 'Thời gian hoàn thành').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                  </select>
+                </th>
+                <th>
+                  <select className="w-full px-2 py-1 border rounded" value={filterDanhGia} onChange={e => setFilterDanhGia(e.target.value)}>
+                    <option value="">Tất cả</option>
+                    {['Hoàn thành', 'Theo tiến độ', 'Chậm tiến độ', 'Không hoàn thành', 'Chưa đánh giá'].map((v, i) => <option key={i} value={v}>{v}</option>)}
+                  </select>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {filteredTasks.length === 0 ? (
                 <tr>
-                  <th className="px-4 py-3 text-left">#</th>
-                  <th className="px-4 py-3 text-left w-[140px]">Tên công việc</th>
-                  <th className="px-4 py-3 text-left w-[200px]">Lĩnh vực</th>
-                  <th className="px-4 py-3 text-left">Tiến độ</th>
-                  <th className="px-4 py-3 text-left w-[240px]">Chủ trì</th>
-                  <th className="px-4 py-3 text-left">Hoàn thành</th>
-                  <th className="px-4 py-3 text-left">Đánh giá</th>
+                  <td colSpan="7" className="text-center py-6 italic text-gray-500">
+                    Không có dữ liệu phù hợp với bộ lọc.
+                  </td>
                 </tr>
-                <tr className="bg-white text-gray-700 text-xs">
-                  <th></th><th></th>
-                  <th>
-                    <select className="w-full px-2 py-1 border rounded" value={filterLinhVuc} onChange={e => setFilterLinhVuc(e.target.value)}>
-                      <option value="">Tất cả</option>
-                      {unique(taskList, 'Các lĩnh vực công tác').map((v, i) => <option key={i} value={v}>{v}</option>)}
-                    </select>
-                  </th>
-                  <th></th>
-                  <th>
-                    <select className="w-full px-2 py-1 border rounded" value={filterChuTri} onChange={e => setFilterChuTri(e.target.value)}>
-                      <option value="">Tất cả</option>
-                      {unique(taskList, 'Người chủ trì').map((v, i) => <option key={i} value={v}>{v}</option>)}
-                    </select>
-                  </th>
-                  <th>
-                    <select className="w-full px-2 py-1 border rounded" value={filterHoanThanh} onChange={e => setFilterHoanThanh(e.target.value)}>
-                      <option value="">Tất cả</option>
-                      {unique(taskList, 'Thời gian hoàn thành').map((v, i) => <option key={i} value={v}>{v}</option>)}
-                    </select>
-                  </th>
-                  <th>
-                    <select className="w-full px-2 py-1 border rounded" value={filterDanhGia} onChange={e => setFilterDanhGia(e.target.value)}>
-                      <option value="">Tất cả</option>
-                      {['Hoàn thành', 'Theo tiến độ', 'Chậm tiến độ', 'Không hoàn thành', 'Chưa đánh giá'].map((v, i) => <option key={i} value={v}>{v}</option>)}
-                    </select>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {filteredTasks.map((task, index) => (
+              ) : (
+                filteredTasks.map((task, index) => (
                   <tr key={index} className="hover:bg-indigo-50 transition">
                     <td className="px-4 py-3 font-medium text-center">{index + 1}</td>
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Các lĩnh vực công tác']}</td>
                     <td className="px-4 py-3 text-sm">
-  <span
-    className={`inline-block px-3 py-1 rounded-full text-xs font-medium
-      ${isCurrentMonth(task['Tiến độ'])
-        ? 'bg-yellow-100 text-yellow-800'
-        : isPastMonth(task['Tiến độ'])
-        ? 'bg-gray-100 border border-gray-400 text-gray-700'
-        : ''}`}
-  >
-    {task['Tiến độ']}
-  </span>
-</td>
-
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium
+                          ${isCurrentMonth(task['Tiến độ'])
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : isPastMonth(task['Tiến độ'])
+                            ? 'bg-gray-100 border border-gray-400 text-gray-700'
+                            : ''}`}
+                      >
+                        {task['Tiến độ']}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Người chủ trì']}</td>
                     <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
                     <td className="px-4 py-3">
@@ -145,11 +146,11 @@ const DashboardPage = () => {
                       </span>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );
