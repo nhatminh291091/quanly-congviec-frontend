@@ -1,174 +1,159 @@
+import React, { useState, useEffect } from 'react';
+import { apiService } from '../services/api';
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+const DashboardPage = () => {
+  const [taskList, setTaskList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-function DashboardPage() {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [filters, setFilters] = useState({
-    linhVuc: "Tất cả",
-    chuTri: "Tất cả",
-    hoanThanh: "Tất cả",
-    danhGia: "Tất cả",
-  });
+  const [filterLinhVuc, setFilterLinhVuc] = useState('');
+  const [filterChuTri, setFilterChuTri] = useState('');
+  const [filterHoanThanh, setFilterHoanThanh] = useState('');
+  const [filterDanhGia, setFilterDanhGia] = useState('');
 
   useEffect(() => {
-    axios.get("https://quanly-congviec-backend.onrender.com/api/quanly").then((response) => {
-      const resData = response.data;
-      setData(resData);
-      setFilteredData(resData);
-    });
+    const fetchAllTasks = async () => {
+      try {
+        const rawData = await apiService.get('api/tasks/all');
+        const tasks = rawData.flat();
+        setTaskList(tasks);
+      } catch (error) {
+        console.error('❌ Lỗi khi lấy danh sách công việc:', error);
+        setTaskList([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAllTasks();
   }, []);
 
-  useEffect(() => {
-    let result = [...data];
-    if (filters.linhVuc !== "Tất cả") {
-      result = result.filter((task) => task["Lĩnh vực"] === filters.linhVuc);
-    }
-    if (filters.chuTri !== "Tất cả") {
-      result = result.filter((task) => task["Người chủ trì"] === filters.chuTri);
-    }
-    if (filters.hoanThanh !== "Tất cả") {
-      result = result.filter((task) => task["Thời gian hoàn thành"] === filters.hoanThanh);
-    }
-    if (filters.danhGia !== "Tất cả") {
-      result = result.filter((task) => task["Đánh giá kết quả"] === filters.danhGia);
-    }
-    setFilteredData(result);
-  }, [filters, data]);
+  const filteredTasks = taskList.filter(task =>
+    (!filterLinhVuc || task['Các lĩnh vực công tác'] === filterLinhVuc) &&
+    (!filterChuTri || task['Người chủ trì'] === filterChuTri) &&
+    (!filterHoanThanh || task['Thời gian hoàn thành'] === filterHoanThanh) &&
+    (!filterDanhGia ||
+      (filterDanhGia === 'Chưa đánh giá' && !task['Đánh giá kết quả']) ||
+      (task['Đánh giá kết quả']?.includes(filterDanhGia)))
+  );
 
-  const uniqueValues = (key) =>
-    Array.from(new Set(data.map((item) => item[key]).filter(Boolean)));
+  const unique = (arr, key) => Array.from(new Set(arr.map(item => item[key]).filter(Boolean)));
 
-  const isCurrentMonth = (dateString) => {
-    const dateParts = dateString.split("/");
-    if (dateParts.length !== 3) return false;
-    const month = parseInt(dateParts[1], 10);
-    const year = parseInt(dateParts[2], 10);
-    const now = new Date();
-    return now.getMonth() + 1 === month && now.getFullYear() === year;
+  const isCurrentMonth = (dateStr) => {
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const today = new Date();
+    return month === today.getMonth() + 1 && year === today.getFullYear();
   };
 
-  const isPastMonth = (dateString) => {
-    const dateParts = dateString.split("/");
-    if (dateParts.length !== 3) return false;
-    const month = parseInt(dateParts[1], 10);
-    const year = parseInt(dateParts[2], 10);
-    const now = new Date();
-    return year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1);
+  const isPastMonth = (dateStr) => {
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const today = new Date();
+    return year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth() + 1);
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">📋 Danh sách công việc được giao</h1>
-      <p className="italic text-sm mb-2">
-        Tổng số công việc: {filteredData.length}
-      </p>
-      <div className="overflow-x-auto rounded-md shadow border">
-        <table className="table-fixed w-full text-sm text-left text-gray-700">
-          <thead className="bg-blue-100 text-gray-700 text-sm">
-            <tr>
-              <th className="w-[40px] px-2 py-2">#</th>
-              <th className="w-[300px] px-2 py-2">TÊN CÔNG VIỆC</th>
-              <th className="w-[160px] px-2 py-2">
-                LĨNH VỰC
-                <select
-                  className="block w-full mt-1"
-                  onChange={(e) =>
-                    setFilters({ ...filters, linhVuc: e.target.value })
-                  }
-                >
-                  <option>Tất cả</option>
-                  {uniqueValues("Lĩnh vực").map((value, idx) => (
-                    <option key={idx}>{value}</option>
-                  ))}
-                </select>
-              </th>
-              <th className="w-[130px] px-2 py-2">TIẾN ĐỘ</th>
-              <th className="w-[160px] px-2 py-2 whitespace-nowrap">
-                CHỦ TRÌ
-                <select
-                  className="block w-full mt-1"
-                  onChange={(e) =>
-                    setFilters({ ...filters, chuTri: e.target.value })
-                  }
-                >
-                  <option>Tất cả</option>
-                  {uniqueValues("Người chủ trì").map((value, idx) => (
-                    <option key={idx}>{value}</option>
-                  ))}
-                </select>
-              </th>
-              <th className="w-[130px] px-2 py-2">HOÀN THÀNH</th>
-              <th className="w-[130px] px-2 py-2">
-                ĐÁNH GIÁ
-                <select
-                  className="block w-full mt-1"
-                  onChange={(e) =>
-                    setFilters({ ...filters, danhGia: e.target.value })
-                  }
-                >
-                  <option>Tất cả</option>
-                  {uniqueValues("Đánh giá kết quả").map((value, idx) => (
-                    <option key={idx}>{value}</option>
-                  ))}
-                </select>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.length === 0 ? (
+    <div className="flex flex-col flex-1">
+      <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white shadow-md">
+        <h1 className="text-3xl font-extrabold tracking-tight">🎨 Tổng hợp công việc</h1>
+      </header>
+
+      <main className="flex-1 p-8 bg-white/70 backdrop-blur-lg overflow-y-auto rounded-tl-3xl">
+        <h2 className="text-2xl font-bold text-indigo-700 mb-6 flex items-center gap-2">
+          📋 <span>Danh sách công việc được giao</span>
+        </h2>
+
+        <p className="text-sm text-gray-500 italic mb-4">
+          Tổng số công việc: {filteredTasks.length}
+        </p>
+
+        <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-blue-200 to-indigo-300 text-indigo-900 uppercase text-xs">
               <tr>
-                <td colSpan={7} className="text-center italic py-4">
-                  Không có dữ liệu phù hợp với bộ lọc.
-                </td>
+                <th className="px-4 py-3 text-left">#</th>
+                <th className="px-4 py-3 text-left w-[140px]">Tên công việc</th>
+                <th className="px-4 py-3 text-left w-[200px]">Lĩnh vực</th>
+                <th className="px-4 py-3 text-left">Tiến độ</th>
+                <th className="px-4 py-3 text-left w-[240px]">Chủ trì</th>
+                <th className="px-4 py-3 text-left">Hoàn thành</th>
+                <th className="px-4 py-3 text-left">Đánh giá</th>
               </tr>
-            ) : (
-              filteredData.map((task, index) => (
-                <tr key={index} className="border-t">
-                  <td className="px-2 py-2">{index + 1}</td>
-                  <td className="px-2 py-2">{task["Tên công việc"]}</td>
-                  <td className="px-2 py-2">{task["Lĩnh vực"]}</td>
-                  <td className="px-2 py-2">
-                    <span
-                      className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
-                        isCurrentMonth(task["Tiến độ"])
-                          ? "bg-yellow-100 text-yellow-800"
-                          : isPastMonth(task["Tiến độ"])
-                          ? "bg-gray-100 text-gray-700 border border-gray-400"
-                          : ""
-                      }`}
-                    >
-                      {task["Tiến độ"]}
-                    </span>
-                  </td>
-                  <td className="px-2 py-2 whitespace-nowrap">{task["Người chủ trì"]}</td>
-                  <td className="px-2 py-2">{task["Thời gian hoàn thành"]}</td>
-                  <td className="px-2 py-2">
-                    <span
-                      className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
-                        task["Đánh giá kết quả"] === "Hoàn thành"
-                          ? "bg-green-200 text-green-800"
-                          : task["Đánh giá kết quả"] === "Theo tiến độ"
-                          ? "bg-yellow-200 text-yellow-800"
-                          : task["Đánh giá kết quả"] === "Chậm tiến độ"
-                          ? "bg-orange-200 text-orange-800"
-                          : task["Đánh giá kết quả"] === "Không hoàn thành"
-                          ? "bg-red-200 text-red-800"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {task["Đánh giá kết quả"]}
-                    </span>
+              <tr className="bg-white text-gray-700 text-xs">
+                <th></th><th></th>
+                <th>
+                  <select className="w-full px-2 py-1 border rounded" value={filterLinhVuc} onChange={e => setFilterLinhVuc(e.target.value)}>
+                    <option value="">Tất cả</option>
+                    {unique(taskList, 'Các lĩnh vực công tác').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                  </select>
+                </th>
+                <th></th>
+                <th>
+                  <select className="w-full px-2 py-1 border rounded" value={filterChuTri} onChange={e => setFilterChuTri(e.target.value)}>
+                    <option value="">Tất cả</option>
+                    {unique(taskList, 'Người chủ trì').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                  </select>
+                </th>
+                <th>
+                  <select className="w-full px-2 py-1 border rounded" value={filterHoanThanh} onChange={e => setFilterHoanThanh(e.target.value)}>
+                    <option value="">Tất cả</option>
+                    {unique(taskList, 'Thời gian hoàn thành').map((v, i) => <option key={i} value={v}>{v}</option>)}
+                  </select>
+                </th>
+                <th>
+                  <select className="w-full px-2 py-1 border rounded" value={filterDanhGia} onChange={e => setFilterDanhGia(e.target.value)}>
+                    <option value="">Tất cả</option>
+                    {['Hoàn thành', 'Theo tiến độ', 'Chậm tiến độ', 'Không hoàn thành', 'Chưa đánh giá'].map((v, i) => <option key={i} value={v}>{v}</option>)}
+                  </select>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {filteredTasks.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center py-6 italic text-gray-500">
+                    Không có dữ liệu phù hợp với bộ lọc.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                filteredTasks.map((task, index) => (
+                  <tr key={index} className="hover:bg-indigo-50 transition">
+                    <td className="px-4 py-3 font-medium text-center">{index + 1}</td>
+                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
+                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Các lĩnh vực công tác']}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium
+                          ${isCurrentMonth(task['Tiến độ'])
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : isPastMonth(task['Tiến độ'])
+                            ? 'bg-gray-100 border border-gray-400 text-gray-700'
+                            : ''}`}
+                      >
+                        {task['Tiến độ']}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Người chủ trì']}</td>
+                    <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
+                        ${
+                          task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
+                          'bg-gray-100 text-gray-500'
+                        }`}>
+                        {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </main>
     </div>
   );
-}
+};
 
 export default DashboardPage;
