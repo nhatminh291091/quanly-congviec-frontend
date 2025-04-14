@@ -69,13 +69,13 @@ const DashboardPage = () => {
         <table className="table-fixed w-full text-sm text-left text-gray-700 border-collapse">
             <thead className="bg-blue-100 text-gray-700 text-sm">
               <tr>
-                <th className="px-4 py-3 w-[40px]">#</th>
-                <th className="px-4 py-3 w-[280px]">Tên công việc</th>
-                <th className="px-4 py-3 w-[180px]">Lĩnh vực</th>
-                <th className="px-4 py-3 w-[100px]">Tiến độ</th>
-                <th className="px-4 py-3 w-[180px] whitespace-nowrap">Chủ trì</th>
-                <th className="px-4 py-3 w-[150px]">Hoàn thành</th>
-                <th className="px-4 py-3 w-[150px]">Đánh giá</th>
+                <th className="px-4 py-3 w-10">#</th>
+                <th className="px-4 py-3 w-80">Tên công việc</th>
+                <th className="px-4 py-3 w-44">Lĩnh vực</th>
+                <th className="px-4 py-3 w-20">Tiến độ</th>
+                <th className="px-4 py-3 w-40 whitespace-nowrap">Chủ trì</th>
+                <th className="px-4 py-3 w-20">Hoàn thành</th>
+                <th className="px-4 py-3 w-36">Đánh giá</th>
               </tr>
               <tr className="bg-white text-gray-700 text-xs">
                 <th></th><th></th>
