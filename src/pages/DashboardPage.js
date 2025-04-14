@@ -66,7 +66,7 @@ const DashboardPage = () => {
         </p>
 
         <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
-          <table className="table-fixed w-full text-sm text-left text-gray-700">
+        <table className="table-fixed w-full text-sm text-left text-gray-700 border-collapse">
             <thead className="bg-blue-100 text-gray-700 text-sm">
               <tr>
                 <th className="px-4 py-3 w-[40px]">#</th>
@@ -119,8 +119,8 @@ const DashboardPage = () => {
                     <td className="px-4 py-3 w-[40px] text-center">{index + 1}</td>
                     <td className="px-4 py-3 w-[280px] break-words whitespace-pre-wrap">{task['Tên công việc']}</td>
                     <td className="px-4 py-3 w-[180px] break-words whitespace-pre-wrap">{task['Các lĩnh vực công tác']}</td>
-                    <td className="px-4 py-3 w-[100px]">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium
+                    <td className="px-4 py-3 ">
+                      <span className={`inline-block px-3 py-1 w-[100px] rounded-full text-xs font-medium
                         ${isCurrentMonth(task['Tiến độ'])
                           ? 'bg-yellow-100 text-yellow-800'
                           : isPastMonth(task['Tiến độ'])
@@ -130,7 +130,7 @@ const DashboardPage = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 w-[180px] whitespace-nowrap">{task['Người chủ trì']}</td>
-                    <td className="px-4 py-3 w-[150px]">{task['Thời gian hoàn thành']}</td>
+                    <td className="px-4 py-3 w-[150px] whitespace-nowrap">{task['Thời gian hoàn thành']}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-block px-3 py-1 w-[150px] rounded-full text-xs font-semibold shadow-sm
                         ${task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
