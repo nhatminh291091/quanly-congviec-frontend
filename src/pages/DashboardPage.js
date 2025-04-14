@@ -72,7 +72,7 @@ const DashboardPage = () => {
                 <th className="px-4 py-3 w-[40px]">#</th>
                 <th className="px-4 py-3 w-[280px]">Tên công việc</th>
                 <th className="px-4 py-3 w-[180px]">Lĩnh vực</th>
-                <th className="px-4 py-3 w-[140px]">Tiến độ</th>
+                <th className="px-4 py-3 w-[100px]">Tiến độ</th>
                 <th className="px-4 py-3 w-[180px] whitespace-nowrap">Chủ trì</th>
                 <th className="px-4 py-3 w-[150px]">Hoàn thành</th>
                 <th className="px-4 py-3 w-[150px]">Đánh giá</th>
@@ -116,10 +116,10 @@ const DashboardPage = () => {
               ) : (
                 filteredTasks.map((task, index) => (
                   <tr key={index} className="hover:bg-indigo-50 transition">
-                    <td className="px-4 py-3 text-center">{index + 1}</td>
-                    <td className="px-4 py-3 break-words whitespace-pre-wrap">{task['Tên công việc']}</td>
-                    <td className="px-4 py-3 break-words whitespace-pre-wrap">{task['Các lĩnh vực công tác']}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 w-[40px] text-center">{index + 1}</td>
+                    <td className="px-4 py-3 w-[280px] break-words whitespace-pre-wrap">{task['Tên công việc']}</td>
+                    <td className="px-4 py-3 w-[180px] break-words whitespace-pre-wrap">{task['Các lĩnh vực công tác']}</td>
+                    <td className="px-4 py-3 w-[100px]">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium
                         ${isCurrentMonth(task['Tiến độ'])
                           ? 'bg-yellow-100 text-yellow-800'
@@ -129,10 +129,10 @@ const DashboardPage = () => {
                         {task['Tiến độ']}
                       </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">{task['Người chủ trì']}</td>
-                    <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
+                    <td className="px-4 py-3 w-[180px] whitespace-nowrap">{task['Người chủ trì']}</td>
+                    <td className="px-4 py-3 w-[150px]">{task['Thời gian hoàn thành']}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
+                      <span className={`inline-block px-3 py-1 w-[150px] rounded-full text-xs font-semibold shadow-sm
                         ${task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
