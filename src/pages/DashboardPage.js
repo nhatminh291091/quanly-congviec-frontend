@@ -69,13 +69,13 @@ const DashboardPage = () => {
           <table className="table-fixed w-full text-sm text-left text-gray-700">
             <thead className="bg-blue-100 text-gray-700 text-sm">
               <tr>
-                <th className="px-4 py-3 text-left w-[40px]">#</th>
-                <th className="px-4 py-3 text-left w-[200px]">Tên công việc</th>
-                <th className="px-4 py-3 text-left w-[140px]">Lĩnh vực</th>
-                <th className="px-4 py-3 text-left w-[100px]">Tiến độ</th>
-                <th className="px-4 py-3 text-left w-[160px]">Chủ trì</th>
-                <th className="px-4 py-3 text-left w-[120px]">Hoàn thành</th>
-                <th className="px-4 py-3 text-left w-[120px]">Đánh giá</th>
+                <th className="px-4 py-3 w-[40px]">#</th>
+                <th className="px-4 py-3 w-[280px]">Tên công việc</th>
+                <th className="px-4 py-3 w-[180px]">Lĩnh vực</th>
+                <th className="px-4 py-3 w-[140px]">Tiến độ</th>
+                <th className="px-4 py-3 w-[180px] whitespace-nowrap">Chủ trì</th>
+                <th className="px-4 py-3 w-[150px]">Hoàn thành</th>
+                <th className="px-4 py-3 w-[150px]">Đánh giá</th>
               </tr>
               <tr className="bg-white text-gray-700 text-xs">
                 <th></th><th></th>
@@ -116,32 +116,28 @@ const DashboardPage = () => {
               ) : (
                 filteredTasks.map((task, index) => (
                   <tr key={index} className="hover:bg-indigo-50 transition">
-                    <td className="px-4 py-3 font-medium text-center">{index + 1}</td>
-                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Tên công việc']}</td>
-                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Các lĩnh vực công tác']}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium
-                          ${isCurrentMonth(task['Tiến độ'])
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : isPastMonth(task['Tiến độ'])
-                            ? 'bg-gray-100 border border-gray-400 text-gray-700'
-                            : ''}`}
-                      >
+                    <td className="px-4 py-3 text-center">{index + 1}</td>
+                    <td className="px-4 py-3 break-words whitespace-pre-wrap">{task['Tên công việc']}</td>
+                    <td className="px-4 py-3 break-words whitespace-pre-wrap">{task['Các lĩnh vực công tác']}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium
+                        ${isCurrentMonth(task['Tiến độ'])
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : isPastMonth(task['Tiến độ'])
+                          ? 'bg-gray-100 border border-gray-400 text-gray-700'
+                          : ''}`}>
                         {task['Tiến độ']}
                       </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-pre-wrap break-words">{task['Người chủ trì']}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">{task['Người chủ trì']}</td>
                     <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold shadow-sm
-                        ${
-                          task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
+                        ${task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
-                          'bg-gray-100 text-gray-500'
-                        }`}>
+                          'bg-gray-100 text-gray-500'}`}>
                         {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
                       </span>
                     </td>
