@@ -66,8 +66,8 @@ const DashboardPage = () => {
         </p>
 
         <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-blue-200 to-indigo-300 text-indigo-900 uppercase text-xs">
+          <table className="table-fixed w-full text-sm text-left text-gray-700">
+            <thead className="bg-blue-100 text-gray-700 text-sm">
               <tr>
                 <th className="px-4 py-3 text-left">#</th>
                 <th className="px-4 py-3 text-left w-[140px]">Tên công việc</th>
