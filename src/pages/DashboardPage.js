@@ -143,12 +143,14 @@ const DashboardPage = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        className="text-sm text-indigo-600 underline hover:text-indigo-800"
-                        onClick={() => navigate(`/bao-cao?id=${encodeURIComponent(task['Tên công việc'])}`)}
-                      >
-                        Cập nhật báo cáo
-                      </button>
+                      {(!task['Đánh giá kết quả'] || task['Đánh giá kết quả'] === 'Chưa đánh giá') && (
+                        <button
+                          className="text-sm text-indigo-600 underline hover:text-indigo-800"
+                          onClick={() => navigate(`/bao-cao?id=${task.id}`)}
+                        >
+                          Cập nhật báo cáo
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
