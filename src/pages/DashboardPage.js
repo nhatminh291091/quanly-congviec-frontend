@@ -1,25 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
-import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = () => {
   const [taskList, setTaskList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const [filterLinhVuc, setFilterLinhVuc] = useState('');
-  const [filterChuTri, setFilterChuTri] = useState('');
-  const [filterHoanThanh, setFilterHoanThanh] = useState('');
-  const [filterDanhGia, setFilterDanhGia] = useState('');
-
-  const navigate = useNavigate();
+  const [formVisibleIndex, setFormVisibleIndex] = useState(null);
+  const [dulieuOptions, setDulieuOptions] = useState([]);
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     const fetchAllTasks = async () => {
       try {
         const rawData = await apiService.get('api/tasks/all');
         const tasks = rawData.flat().map((task, index) => ({ ...task, id: task.id || index }));
-
-        // Sắp xếp: chưa đánh giá lên đầu
         tasks.sort((a, b) => {
           const aEval = a['Đánh giá kết quả']?.toLowerCase() || '';
           const bEval = b['Đánh giá kết quả']?.toLowerCase() || '';
@@ -27,132 +20,146 @@ const DashboardPage = () => {
           const isBChua = !bEval || bEval === 'chưa đánh giá';
           return isBChua - isAChua;
         });
-
         setTaskList(tasks);
       } catch (error) {
         console.error('❌ Lỗi khi lấy danh sách công việc:', error);
-        setTaskList([]);
       } finally {
         setIsLoading(false);
       }
     };
 
+    const fetchDulieu = async () => {
+      try {
+        const raw = await apiService.get('api/dulieu');
+        const names = raw.flat().map(row => row['Email chuyên viên']).filter(Boolean);
+        setDulieuOptions(names);
+      } catch (e) {
+        console.error('Lỗi lấy dữ liệu DULIEU:', e);
+      }
+    };
+
     fetchAllTasks();
+    fetchDulieu();
   }, []);
 
-  const filteredTasks = taskList.filter(task =>
-    (!filterLinhVuc || task['Các lĩnh vực công tác'] === filterLinhVuc) &&
-    (!filterChuTri || task['Người chủ trì'] === filterChuTri) &&
-    (!filterHoanThanh || task['Thời gian hoàn thành'] === filterHoanThanh) &&
-    (!filterDanhGia ||
-      (filterDanhGia === 'Chưa đánh giá' && !task['Đánh giá kết quả']) ||
-      (task['Đánh giá kết quả']?.includes(filterDanhGia)))
-  );
-
-  const unique = (arr, key) => Array.from(new Set(arr.map(item => item[key]).filter(Boolean)));
-
-  const isCurrentMonth = (dateStr) => {
-    const [day, month, year] = dateStr.split('/').map(Number);
-    const today = new Date();
-    return month === today.getMonth() + 1 && year === today.getFullYear();
-  };
-
-  const isPastMonth = (dateStr) => {
-    const [day, month, year] = dateStr.split('/').map(Number);
-    const today = new Date();
-    return year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth() + 1);
-  };
-
-  const handleNavigateWithDelay = (id) => {
-    const row = document.getElementById(`task-row-${id}`);
-    if (row) {
-      row.classList.add('animate-pulse');
-      setTimeout(() => {
-        navigate(`/bao-cao?id=${id}`);
-      }, 200);
+  const handleToggleForm = (index, task) => {
+    if (formVisibleIndex === index) {
+      setFormVisibleIndex(null);
+      setFormData({});
     } else {
-      navigate(`/bao-cao?id=${id}`);
+      setFormVisibleIndex(index);
+      setFormData({
+        description: task['Mô tả kết quả thực hiện'] || '',
+        issues: task['Tồn tại, nguyên nhân'] || '',
+        suggestions: task['Đề xuất, kiến nghị'] || '',
+        completionDate: task['Thời gian hoàn thành'] || '',
+        performers: task['Người thực hiện']?.split(',').map(s => s.trim()) || []
+      });
     }
   };
 
+  const handleInputChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleMultiSelectChange = e => {
+    const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+    setFormData(prev => ({ ...prev, performers: selected }));
+  };
+
+  const handleSave = (index) => {
+    const task = taskList[index];
+    const updated = {
+      ...task,
+      'Mô tả kết quả thực hiện': formData.description,
+      'Tồn tại, nguyên nhân': formData.issues,
+      'Đề xuất, kiến nghị': formData.suggestions,
+      'Thời gian hoàn thành': formData.completionDate,
+      'Người thực hiện': formData.performers.join(', ')
+    };
+    const newList = [...taskList];
+    newList[index] = updated;
+    setTaskList(newList);
+    setFormVisibleIndex(null);
+    alert('Đã lưu báo cáo (giả lập)');
+  };
+
   return (
-    <div className="flex flex-col flex-1">
-      <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white shadow-md">
-        <h1 className="text-3xl font-extrabold tracking-tight">🎨 Tổng hợp công việc</h1>
-      </header>
-
-      <main className="flex-1 p-8 bg-white/70 backdrop-blur-lg overflow-y-auto rounded-tl-3xl">
-        <h2 className="text-2xl font-bold text-indigo-700 mb-6 flex items-center gap-2">
-          📋 <span>Danh sách công việc được giao</span>
-        </h2>
-
-        <p className="text-sm text-gray-500 italic mb-1">
-          Tổng số công việc: {filteredTasks.length}
-        </p>
-        <p className="text-sm text-gray-700 italic mb-4">
-          👉 Click vào tên công việc để cập nhật báo cáo thực hiện công việc.
-        </p>
-
-        <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
-          <table className="table-fixed w-full text-sm text-left text-gray-700 border-collapse">
-            <thead className="bg-blue-100 text-gray-700 text-sm">
-              <tr>
-                <th className="px-4 py-3 w-10">#</th>
-                <th className="px-4 py-3 w-80">Tên công việc</th>
-                <th className="px-4 py-3 w-44">Lĩnh vực</th>
-                <th className="px-4 py-3 w-20">Tiến độ</th>
-                <th className="px-4 py-3 w-40 whitespace-nowrap">Chủ trì</th>
-                <th className="px-4 py-3 w-20">Hoàn thành</th>
-                <th className="px-4 py-3 w-36">Đánh giá</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {filteredTasks.length === 0 ? (
-                <tr>
-                  <td colSpan="7" className="text-center py-6 italic text-gray-500">
-                    Không có dữ liệu phù hợp với bộ lọc.
-                  </td>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">📋 Danh sách công việc</h1>
+      <p className="text-sm italic text-gray-600 mb-6">👉 Click vào tên công việc để cập nhật báo cáo thực hiện.</p>
+      <div className="overflow-auto">
+        <table className="table-auto w-full border">
+          <thead>
+            <tr className="bg-blue-100">
+              <th>#</th>
+              <th>Tên công việc</th>
+              <th>Lĩnh vực</th>
+              <th>Tiến độ</th>
+              <th>Chủ trì</th>
+              <th>Hoàn thành</th>
+              <th>Đánh giá</th>
+            </tr>
+          </thead>
+          <tbody>
+            {taskList.map((task, index) => (
+              <React.Fragment key={index}>
+                <tr className="hover:bg-indigo-50 cursor-pointer" onClick={() => handleToggleForm(index, task)}>
+                  <td>{index + 1}</td>
+                  <td className="text-blue-600 underline">{task['Tên công việc']}</td>
+                  <td>{task['Các lĩnh vực công tác']}</td>
+                  <td>{task['Tiến độ']}</td>
+                  <td>{task['Người chủ trì']}</td>
+                  <td>{task['Thời gian hoàn thành']}</td>
+                  <td>{task['Đánh giá kết quả'] || 'Chưa đánh giá'}</td>
                 </tr>
-              ) : (
-                filteredTasks.map((task, index) => (
-                  <tr
-                    key={index}
-                    id={`task-row-${task.id}`}
-                    className="hover:bg-indigo-50 transition cursor-pointer"
-                  >
-                    <td className="px-4 py-3 w-10 text-center">{index + 1}</td>
-                    <td
-                      className="px-4 py-3 w-80 break-words whitespace-pre-wrap text-blue-600 hover:underline"
-                      onClick={() => handleNavigateWithDelay(task.id)}
-                    >
-                      {task['Tên công việc']}
-                    </td>
-                    <td className="px-4 py-3 w-44 break-words whitespace-pre-wrap">{task['Các lĩnh vực công tác']}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block px-3 py-1 w-20 rounded-full text-xs font-medium
-                        ${isCurrentMonth(task['Tiến độ']) ? 'bg-yellow-100 text-yellow-800' : isPastMonth(task['Tiến độ']) ? 'bg-gray-100 border border-gray-400 text-gray-700' : ''}`}>
-                        {task['Tiến độ']}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 w-40 whitespace-nowrap">{task['Người chủ trì']}</td>
-                    <td className="px-4 py-3 w-20 whitespace-nowrap">{task['Thời gian hoàn thành']}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block px-3 py-1 w-36 rounded-full text-xs font-semibold shadow-sm
-                        ${task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
-                          task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
-                          task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
-                          task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
-                          'bg-gray-100 text-gray-500'}`}>
-                        {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
-                      </span>
+                {formVisibleIndex === index && (
+                  <tr>
+                    <td colSpan="7" className="bg-gray-50 p-4">
+                      <form className="space-y-4">
+                        <div>
+                          <label className="font-semibold">Người thực hiện</label>
+                          <select
+                            multiple
+                            className="w-full border rounded p-2"
+                            value={formData.performers}
+                            onChange={handleMultiSelectChange}
+                          >
+                            {dulieuOptions.map((name, idx) => (
+                              <option key={idx} value={name}>{name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-semibold">Mô tả kết quả</label>
+                          <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full border rounded p-2" rows="2" />
+                        </div>
+                        <div>
+                          <label className="font-semibold">Tồn tại, nguyên nhân</label>
+                          <textarea name="issues" value={formData.issues} onChange={handleInputChange} className="w-full border rounded p-2" rows="2" />
+                        </div>
+                        <div>
+                          <label className="font-semibold">Thời gian hoàn thành</label>
+                          <input type="date" name="completionDate" value={formData.completionDate} onChange={handleInputChange} className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                          <label className="font-semibold">Đề xuất, kiến nghị</label>
+                          <textarea name="suggestions" value={formData.suggestions} onChange={handleInputChange} className="w-full border rounded p-2" rows="2" />
+                        </div>
+                        <div className="flex gap-4">
+                          <button type="button" onClick={() => handleSave(index)} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Lưu báo cáo</button>
+                          <button type="button" onClick={() => setFormVisibleIndex(null)} className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Hủy</button>
+                        </div>
+                      </form>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </main>
+                )}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
