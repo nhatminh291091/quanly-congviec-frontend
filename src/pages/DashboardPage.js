@@ -19,7 +19,6 @@ const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeFormIndex, setActiveFormIndex] = useState(null);
   const [formData, setFormData] = useState({});
-  const [nguoiThucHienList, setNguoiThucHienList] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,18 +44,7 @@ const DashboardPage = () => {
       }
     };
 
-    const fetchNguoiThucHien = async () => {
-      try {
-        const raw = await apiService.get('api/dulieu');
-        const names = raw.flat().map(row => row['Tên chuyên viên']).filter(Boolean);
-        setNguoiThucHienList(names);
-      } catch (error) {
-        console.error('❌ Lỗi khi lấy người thực hiện:', error);
-      }
-    };
-
     fetchAllTasks();
-    fetchNguoiThucHien();
   }, []);
 
   const toggleForm = (index, task) => {
@@ -69,8 +57,7 @@ const DashboardPage = () => {
         description: task['Mô tả kết quả thực hiện'] || '',
         issues: task['Tồn tại, nguyên nhân'] || '',
         suggestions: task['Đề xuất, kiến nghị'] || '',
-        completionDate: task['Thời gian hoàn thành'] || '',
-        performers: task['Người thực hiện']?.split(',').map(s => s.trim()) || []
+        completionDate: task['Thời gian hoàn thành'] || ''
       });
     }
   };
@@ -80,11 +67,6 @@ const DashboardPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (e) => {
-    const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
-    setFormData(prev => ({ ...prev, performers: selected }));
-  };
-
   const handleSave = (index) => {
     const task = taskList[index];
     const updated = {
@@ -92,8 +74,7 @@ const DashboardPage = () => {
       'Mô tả kết quả thực hiện': formData.description,
       'Tồn tại, nguyên nhân': formData.issues,
       'Đề xuất, kiến nghị': formData.suggestions,
-      'Thời gian hoàn thành': formData.completionDate,
-      'Người thực hiện': formData.performers?.join(', ') || ''
+      'Thời gian hoàn thành': formData.completionDate
     };
     const newList = [...taskList];
     newList[index] = updated;
@@ -101,8 +82,6 @@ const DashboardPage = () => {
     setActiveFormIndex(null);
     alert('Đã lưu báo cáo (giả lập)');
   };
-
-  const filteredTasks = taskList;
 
   const isCurrentMonth = (dateStr) => {
     const [day, month, year] = dateStr.split('/').map(Number);
@@ -139,35 +118,42 @@ const DashboardPage = () => {
                 <th className="px-4 py-3 w-80">Tên công việc</th>
                 <th className="px-4 py-3 w-44">Lĩnh vực</th>
                 <th className="px-4 py-3 w-20">Tiến độ</th>
-                <th className="px-4 py-3 w-40 whitespace-nowrap">Chủ trì</th>
+                <th className="px-4 py-3 w-32 whitespace-nowrap">Chủ trì</th>
                 <th className="px-4 py-3 w-20">Hoàn thành</th>
                 <th className="px-4 py-3 w-36">Đánh giá</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {filteredTasks.map((task, index) => (
+              {taskList.map((task, index) => (
                 <React.Fragment key={index}>
                   <tr className="hover:bg-indigo-50 transition cursor-pointer">
                     <td className="px-4 py-3 w-10 text-center">{index + 1}</td>
                     <td className="px-4 py-3 text-blue-600 hover:underline" onClick={() => toggleForm(index, task)}>{task['Tên công việc']}</td>
                     <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
-                    <td className="px-4 py-3">{task['Tiến độ']}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block px-3 py-1 w-20 rounded-full text-xs font-medium
+                        ${isCurrentMonth(task['Tiến độ']) ? 'bg-yellow-100 text-yellow-800' :
+                          isPastMonth(task['Tiến độ']) ? 'bg-gray-100 border border-gray-400 text-gray-700' : ''}`}>
+                        {task['Tiến độ']}
+                      </span>
+                    </td>
                     <td className="px-4 py-3">{task['Người chủ trì']}</td>
                     <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
-                    <td className="px-4 py-3">{task['Đánh giá kết quả'] || 'Chưa đánh giá'}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block px-3 py-1 w-36 rounded-full text-xs font-semibold shadow-sm
+                        ${task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
+                          task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
+                          'bg-gray-100 text-gray-500'}`}>
+                        {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
+                      </span>
+                    </td>
                   </tr>
                   {activeFormIndex === index && (
                     <tr>
                       <td colSpan="7" className="bg-gray-50 px-6 py-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block font-medium">Người thực hiện</label>
-                            <select multiple value={formData.performers} onChange={handleSelectChange} className="w-full border rounded p-2">
-                              {nguoiThucHienList.map((name, i) => (
-                                <option key={i} value={name}>{name}</option>
-                              ))}
-                            </select>
-                          </div>
                           <div>
                             <label className="block font-medium">Mô tả kết quả thực hiện</label>
                             <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full border rounded p-2" rows="2" />
