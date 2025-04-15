@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = () => {
   const [taskList, setTaskList] = useState([]);
@@ -9,6 +10,8 @@ const DashboardPage = () => {
   const [filterChuTri, setFilterChuTri] = useState('');
   const [filterHoanThanh, setFilterHoanThanh] = useState('');
   const [filterDanhGia, setFilterDanhGia] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllTasks = async () => {
@@ -66,7 +69,7 @@ const DashboardPage = () => {
         </p>
 
         <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
-        <table className="table-fixed w-full text-sm text-left text-gray-700 border-collapse">
+          <table className="table-fixed w-full text-sm text-left text-gray-700 border-collapse">
             <thead className="bg-blue-100 text-gray-700 text-sm">
               <tr>
                 <th className="px-4 py-3 w-10">#</th>
@@ -76,6 +79,7 @@ const DashboardPage = () => {
                 <th className="px-4 py-3 w-40 whitespace-nowrap">Chủ trì</th>
                 <th className="px-4 py-3 w-20">Hoàn thành</th>
                 <th className="px-4 py-3 w-36">Đánh giá</th>
+                <th className="px-4 py-3 w-36">Thao tác</th>
               </tr>
               <tr className="bg-white text-gray-700 text-xs">
                 <th></th><th></th>
@@ -104,35 +108,32 @@ const DashboardPage = () => {
                     {['Hoàn thành', 'Theo tiến độ', 'Chậm tiến độ', 'Không hoàn thành', 'Chưa đánh giá'].map((v, i) => <option key={i} value={v}>{v}</option>)}
                   </select>
                 </th>
+                <th></th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
               {filteredTasks.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-6 italic text-gray-500">
+                  <td colSpan="8" className="text-center py-6 italic text-gray-500">
                     Không có dữ liệu phù hợp với bộ lọc.
                   </td>
                 </tr>
               ) : (
                 filteredTasks.map((task, index) => (
                   <tr key={index} className="hover:bg-indigo-50 transition">
-                    <td className="px-4 py-3 w-[40px] text-center">{index + 1}</td>
-                    <td className="px-4 py-3 w-[280px] break-words whitespace-pre-wrap">{task['Tên công việc']}</td>
-                    <td className="px-4 py-3 w-[180px] break-words whitespace-pre-wrap">{task['Các lĩnh vực công tác']}</td>
-                    <td className="px-4 py-3 ">
-                      <span className={`inline-block px-3 py-1 w-[100px] rounded-full text-xs font-medium
-                        ${isCurrentMonth(task['Tiến độ'])
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : isPastMonth(task['Tiến độ'])
-                          ? 'bg-gray-100 border border-gray-400 text-gray-700'
-                          : ''}`}>
+                    <td className="px-4 py-3 w-10 text-center">{index + 1}</td>
+                    <td className="px-4 py-3 w-80 break-words whitespace-pre-wrap">{task['Tên công việc']}</td>
+                    <td className="px-4 py-3 w-44 break-words whitespace-pre-wrap">{task['Các lĩnh vực công tác']}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block px-3 py-1 w-20 rounded-full text-xs font-medium
+                        ${isCurrentMonth(task['Tiến độ']) ? 'bg-yellow-100 text-yellow-800' : isPastMonth(task['Tiến độ']) ? 'bg-gray-100 border border-gray-400 text-gray-700' : ''}`}>
                         {task['Tiến độ']}
                       </span>
                     </td>
-                    <td className="px-4 py-3 w-[180px] whitespace-nowrap">{task['Người chủ trì']}</td>
-                    <td className="px-4 py-3 w-[150px] whitespace-nowrap">{task['Thời gian hoàn thành']}</td>
+                    <td className="px-4 py-3 w-40 whitespace-nowrap">{task['Người chủ trì']}</td>
+                    <td className="px-4 py-3 w-20 whitespace-nowrap">{task['Thời gian hoàn thành']}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-block px-3 py-1 w-[150px] rounded-full text-xs font-semibold shadow-sm
+                      <span className={`inline-block px-3 py-1 w-36 rounded-full text-xs font-semibold shadow-sm
                         ${task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
                           task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
@@ -140,6 +141,14 @@ const DashboardPage = () => {
                           'bg-gray-100 text-gray-500'}`}>
                         {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        className="text-sm text-indigo-600 underline hover:text-indigo-800"
+                        onClick={() => navigate(`/bao-cao?id=${encodeURIComponent(task['Tên công việc'])}`)}
+                      >
+                        Cập nhật báo cáo
+                      </button>
                     </td>
                   </tr>
                 ))
