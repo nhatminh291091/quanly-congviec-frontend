@@ -2,11 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
+const toISODate = (str) => {
+  if (!str) return '';
+  const [d, m, y] = str.split('/');
+  return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+};
+
+const fromISODate = (str) => {
+  if (!str) return '';
+  const [y, m, d] = str.split('-');
+  return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
+};
+
 const DashboardPage = () => {
   const [taskList, setTaskList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFormIndex, setActiveFormIndex] = useState(null);
   const [formData, setFormData] = useState({});
+  const [nguoiThucHienList, setNguoiThucHienList] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,7 +45,18 @@ const DashboardPage = () => {
       }
     };
 
+    const fetchNguoiThucHien = async () => {
+      try {
+        const raw = await apiService.get('api/dulieu');
+        const names = raw.flat().map(row => row['Tên chuyên viên']).filter(Boolean);
+        setNguoiThucHienList(names);
+      } catch (error) {
+        console.error('❌ Lỗi khi lấy người thực hiện:', error);
+      }
+    };
+
     fetchAllTasks();
+    fetchNguoiThucHien();
   }, []);
 
   const toggleForm = (index, task) => {
@@ -45,7 +69,8 @@ const DashboardPage = () => {
         description: task['Mô tả kết quả thực hiện'] || '',
         issues: task['Tồn tại, nguyên nhân'] || '',
         suggestions: task['Đề xuất, kiến nghị'] || '',
-        completionDate: task['Thời gian hoàn thành'] || ''
+        completionDate: task['Thời gian hoàn thành'] || '',
+        performers: task['Người thực hiện']?.split(',').map(s => s.trim()) || []
       });
     }
   };
@@ -55,6 +80,11 @@ const DashboardPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleSelectChange = (e) => {
+    const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+    setFormData(prev => ({ ...prev, performers: selected }));
+  };
+
   const handleSave = (index) => {
     const task = taskList[index];
     const updated = {
@@ -62,7 +92,8 @@ const DashboardPage = () => {
       'Mô tả kết quả thực hiện': formData.description,
       'Tồn tại, nguyên nhân': formData.issues,
       'Đề xuất, kiến nghị': formData.suggestions,
-      'Thời gian hoàn thành': formData.completionDate
+      'Thời gian hoàn thành': formData.completionDate,
+      'Người thực hiện': formData.performers?.join(', ') || ''
     };
     const newList = [...taskList];
     newList[index] = updated;
@@ -130,6 +161,14 @@ const DashboardPage = () => {
                       <td colSpan="7" className="bg-gray-50 px-6 py-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
+                            <label className="block font-medium">Người thực hiện</label>
+                            <select multiple value={formData.performers} onChange={handleSelectChange} className="w-full border rounded p-2">
+                              {nguoiThucHienList.map((name, i) => (
+                                <option key={i} value={name}>{name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
                             <label className="block font-medium">Mô tả kết quả thực hiện</label>
                             <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full border rounded p-2" rows="2" />
                           </div>
@@ -139,7 +178,13 @@ const DashboardPage = () => {
                           </div>
                           <div>
                             <label className="block font-medium">Thời gian hoàn thành</label>
-                            <input type="date" name="completionDate" value={formData.completionDate} onChange={handleInputChange} className="w-full border rounded p-2" />
+                            <input
+                              type="date"
+                              name="completionDate"
+                              value={toISODate(formData.completionDate)}
+                              onChange={(e) => handleInputChange({ target: { name: 'completionDate', value: fromISODate(e.target.value) } })}
+                              className="w-full border rounded p-2"
+                            />
                           </div>
                           <div>
                             <label className="block font-medium">Đề xuất, kiến nghị</label>
