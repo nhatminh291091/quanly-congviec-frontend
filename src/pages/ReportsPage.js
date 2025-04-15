@@ -1,175 +1,136 @@
-import React, { useState, useEffect, useContext } from 'react';
-import AuthContext from '../contexts/AuthContext';
-import Header from '../components/Header';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { apiService } from '../services/api';
+import Header from '../components/Header';
 
 const ReportsPage = () => {
-  const { user } = useContext(AuthContext);
   const [reports, setReports] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [showUpdateForm, setShowUpdateForm] = useState(false);
-  const [formData, setFormData] = useState({
-    description: '',
-    evaluation: '',
-    issues: '',
-    completionDate: '',
-    suggestions: ''
-  });
+  const [formData, setFormData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
-  function useQuery() {
-    return new URLSearchParams(useLocation().search);
-  }
-
+  const useQuery = () => new URLSearchParams(useLocation().search);
   const query = useQuery();
-  const selectedIdFromUrl = query.get('id');
-
-  const evaluationOptions = ['Hoàn thành', 'Theo tiến độ', 'Chậm tiến độ', 'Không hoàn thành'];
+  const selectedId = query.get('id');
 
   useEffect(() => {
-    const fetchReports = async () => {
+    const fetchData = async () => {
       try {
         const rawData = await apiService.get('api/tasks/all');
-        const data = rawData.flat();
-        setReports(data);
+        const tasks = rawData.flat().map((task, index) => ({ ...task, id: task.id ?? index }));
+        setReports(tasks);
+        const found = tasks.find(task => String(task.id) === selectedId);
+        if (found) {
+          setSelectedReport(found);
+          setFormData({
+            description: found['Mô tả kết quả thực hiện'] || '',
+            evaluation: found['Đánh giá kết quả'] || '',
+            issues: found['Tồn tại, nguyên nhân'] || '',
+            completionDate: found['Thời gian hoàn thành'] || '',
+            suggestions: found['Đề xuất, kiến nghị'] || ''
+          });
+        }
       } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu báo cáo:', error);
-        setReports([]);
+        console.error('Lỗi tải dữ liệu:', error);
       } finally {
         setIsLoading(false);
       }
     };
+    fetchData();
+  }, [selectedId]);
 
-    fetchReports();
-  }, []);
-
-  useEffect(() => {
-    if (!isLoading && selectedIdFromUrl) {
-      const matched = reports.find(r => String(r.id) === selectedIdFromUrl);
-      if (matched) {
-        handleSelectReport(matched);
-      }
-    }
-  }, [isLoading, reports, selectedIdFromUrl]);
-
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectReport = (report) => {
-    setSelectedReport(report);
-    setFormData({
-      description: report['Mô tả kết quả thực hiện'] || '',
-      evaluation: report['Đánh giá kết quả'] || '',
-      issues: report['Tồn tại, nguyên nhân'] || '',
-      completionDate: report['Thời gian hoàn thành'] || '',
-      suggestions: report['Đề xuất, kiến nghị'] || ''
-    });
-    setShowUpdateForm(true);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
-    // TODO: gọi API cập nhật dữ liệu thực tế
-    alert('Đã cập nhật (giả lập).');
+    // TODO: Gửi dữ liệu cập nhật lên Google Sheet
+    alert('Đã lưu cập nhật báo cáo (giả lập)');
   };
 
   return (
-    <div className="reports-page">
+    <div className="p-6">
       <Header title="Báo cáo công việc" />
       {isLoading ? (
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Đang tải dữ liệu...</p>
+        <p className="italic text-gray-500">Đang tải dữ liệu...</p>
+      ) : selectedReport ? (
+        <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+          <h2 className="text-xl font-bold mb-4">Cập nhật báo cáo: {selectedReport['Tên công việc']}</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div><strong>Lĩnh vực:</strong> {selectedReport['Các lĩnh vực công tác']}</div>
+            <div><strong>Người chủ trì:</strong> {selectedReport['Người chủ trì']}</div>
+            <div><strong>Tiến độ:</strong> {selectedReport['Tiến độ']}</div>
+
+            <div>
+              <label className="block font-semibold">Mô tả kết quả thực hiện</label>
+              <textarea
+                name="description"
+                rows="3"
+                value={formData.description}
+                onChange={handleInputChange}
+                className="w-full border p-2 rounded"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-semibold">Đánh giá kết quả</label>
+                <select
+                  name="evaluation"
+                  value={formData.evaluation}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                >
+                  <option value="">-- Chọn --</option>
+                  <option>Hoàn thành</option>
+                  <option>Theo tiến độ</option>
+                  <option>Chậm tiến độ</option>
+                  <option>Không hoàn thành</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-semibold">Thời gian hoàn thành</label>
+                <input
+                  type="date"
+                  name="completionDate"
+                  value={formData.completionDate}
+                  onChange={handleInputChange}
+                  className="w-full border p-2 rounded"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-semibold">Tồn tại, nguyên nhân</label>
+              <textarea
+                name="issues"
+                rows="2"
+                value={formData.issues}
+                onChange={handleInputChange}
+                className="w-full border p-2 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold">Đề xuất, kiến nghị</label>
+              <textarea
+                name="suggestions"
+                rows="2"
+                value={formData.suggestions}
+                onChange={handleInputChange}
+                className="w-full border p-2 rounded"
+              />
+            </div>
+
+            <button type="submit" className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+              Lưu báo cáo
+            </button>
+          </form>
         </div>
       ) : (
-        <>
-          {showUpdateForm && selectedReport ? (
-            <div className="card mb-4">
-              <div className="card-header">
-                <h2 className="card-title">Cập nhật báo cáo: {selectedReport['Tên công việc']}</h2>
-                <button className="btn btn-icon" onClick={() => setShowUpdateForm(false)}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              </div>
-              <form onSubmit={handleSubmit} className="form p-4">
-                <div className="mb-3"><strong>Tên công việc:</strong> {selectedReport['Tên công việc']}</div>
-                <div className="mb-3"><strong>Lĩnh vực:</strong> {selectedReport['Các lĩnh vực công tác']}</div>
-                <div className="mb-3"><strong>Người chủ trì:</strong> {selectedReport['Người chủ trì']}</div>
-                <div className="mb-3"><strong>Thời hạn:</strong> {selectedReport['Tiến độ']}</div>
-
-                <div className="form-group">
-                  <label htmlFor="description">Mô tả kết quả thực hiện</label>
-                  <textarea id="description" name="description" className="form-control" rows="3" value={formData.description} onChange={handleInputChange} required></textarea>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group col-md-6">
-                    <label htmlFor="evaluation">Đánh giá kết quả</label>
-                    <select id="evaluation" name="evaluation" className="form-control" value={formData.evaluation} onChange={handleInputChange} required>
-                      <option value="">-- Chọn đánh giá --</option>
-                      {evaluationOptions.map((option, index) => (
-                        <option key={index} value={option}>{option}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group col-md-6">
-                    <label htmlFor="completionDate">Thời gian hoàn thành</label>
-                    <input type="date" id="completionDate" name="completionDate" className="form-control" value={formData.completionDate} onChange={handleInputChange} required />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="issues">Tồn tại, nguyên nhân</label>
-                  <textarea id="issues" name="issues" className="form-control" rows="2" value={formData.issues} onChange={handleInputChange}></textarea>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="suggestions">Đề xuất, kiến nghị</label>
-                  <textarea id="suggestions" name="suggestions" className="form-control" rows="2" value={formData.suggestions} onChange={handleInputChange}></textarea>
-                </div>
-
-                <div className="form-actions mt-4">
-                  <button type="submit" className="btn btn-primary mr-2">Cập nhật báo cáo</button>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowUpdateForm(false)}>Hủy</button>
-                </div>
-              </form>
-            </div>
-          ) : (
-            <div className="card">
-              <div className="card-header">
-                <h2 className="card-title">Danh sách công việc cần báo cáo</h2>
-              </div>
-              <div className="table-container">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Tên công việc</th>
-                      <th>Lĩnh vực</th>
-                      <th>Người chủ trì</th>
-                      <th>Tiến độ</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reports.map((r, i) => (
-                      <tr key={i}>
-                        <td>{r['Tên công việc']}</td>
-                        <td>{r['Các lĩnh vực công tác']}</td>
-                        <td>{r['Người chủ trì']}</td>
-                        <td>{r['Tiến độ']}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </>
+        <p className="text-red-500">Không tìm thấy công việc với ID phù hợp.</p>
       )}
     </div>
   );

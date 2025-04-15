@@ -17,7 +17,17 @@ const DashboardPage = () => {
     const fetchAllTasks = async () => {
       try {
         const rawData = await apiService.get('api/tasks/all');
-        const tasks = rawData.flat();
+        const tasks = rawData.flat().map((task, index) => ({ ...task, id: task.id || index }));
+
+        // Sắp xếp: chưa đánh giá lên đầu
+        tasks.sort((a, b) => {
+          const aEval = a['Đánh giá kết quả']?.toLowerCase() || '';
+          const bEval = b['Đánh giá kết quả']?.toLowerCase() || '';
+          const isAChua = !aEval || aEval === 'chưa đánh giá';
+          const isBChua = !bEval || bEval === 'chưa đánh giá';
+          return isBChua - isAChua;
+        });
+
         setTaskList(tasks);
       } catch (error) {
         console.error('❌ Lỗi khi lấy danh sách công việc:', error);
@@ -53,6 +63,18 @@ const DashboardPage = () => {
     return year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth() + 1);
   };
 
+  const handleNavigateWithDelay = (id) => {
+    const row = document.getElementById(`task-row-${id}`);
+    if (row) {
+      row.classList.add('animate-pulse');
+      setTimeout(() => {
+        navigate(`/bao-cao?id=${id}`);
+      }, 200);
+    } else {
+      navigate(`/bao-cao?id=${id}`);
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1">
       <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white shadow-md">
@@ -64,8 +86,11 @@ const DashboardPage = () => {
           📋 <span>Danh sách công việc được giao</span>
         </h2>
 
-        <p className="text-sm text-gray-500 italic mb-4">
+        <p className="text-sm text-gray-500 italic mb-1">
           Tổng số công việc: {filteredTasks.length}
+        </p>
+        <p className="text-sm text-gray-700 italic mb-4">
+          👉 Click vào tên công việc để cập nhật báo cáo thực hiện công việc.
         </p>
 
         <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
@@ -79,50 +104,29 @@ const DashboardPage = () => {
                 <th className="px-4 py-3 w-40 whitespace-nowrap">Chủ trì</th>
                 <th className="px-4 py-3 w-20">Hoàn thành</th>
                 <th className="px-4 py-3 w-36">Đánh giá</th>
-                <th className="px-4 py-3 w-36">Thao tác</th>
-              </tr>
-              <tr className="bg-white text-gray-700 text-xs">
-                <th></th><th></th>
-                <th>
-                  <select className="w-full px-2 py-1 border rounded" value={filterLinhVuc} onChange={e => setFilterLinhVuc(e.target.value)}>
-                    <option value="">Tất cả</option>
-                    {unique(taskList, 'Các lĩnh vực công tác').map((v, i) => <option key={i} value={v}>{v}</option>)}
-                  </select>
-                </th>
-                <th></th>
-                <th>
-                  <select className="w-full px-2 py-1 border rounded" value={filterChuTri} onChange={e => setFilterChuTri(e.target.value)}>
-                    <option value="">Tất cả</option>
-                    {unique(taskList, 'Người chủ trì').map((v, i) => <option key={i} value={v}>{v}</option>)}
-                  </select>
-                </th>
-                <th>
-                  <select className="w-full px-2 py-1 border rounded" value={filterHoanThanh} onChange={e => setFilterHoanThanh(e.target.value)}>
-                    <option value="">Tất cả</option>
-                    {unique(taskList, 'Thời gian hoàn thành').map((v, i) => <option key={i} value={v}>{v}</option>)}
-                  </select>
-                </th>
-                <th>
-                  <select className="w-full px-2 py-1 border rounded" value={filterDanhGia} onChange={e => setFilterDanhGia(e.target.value)}>
-                    <option value="">Tất cả</option>
-                    {['Hoàn thành', 'Theo tiến độ', 'Chậm tiến độ', 'Không hoàn thành', 'Chưa đánh giá'].map((v, i) => <option key={i} value={v}>{v}</option>)}
-                  </select>
-                </th>
-                <th></th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
               {filteredTasks.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-6 italic text-gray-500">
+                  <td colSpan="7" className="text-center py-6 italic text-gray-500">
                     Không có dữ liệu phù hợp với bộ lọc.
                   </td>
                 </tr>
               ) : (
                 filteredTasks.map((task, index) => (
-                  <tr key={index} className="hover:bg-indigo-50 transition">
+                  <tr
+                    key={index}
+                    id={`task-row-${task.id}`}
+                    className="hover:bg-indigo-50 transition cursor-pointer"
+                  >
                     <td className="px-4 py-3 w-10 text-center">{index + 1}</td>
-                    <td className="px-4 py-3 w-80 break-words whitespace-pre-wrap">{task['Tên công việc']}</td>
+                    <td
+                      className="px-4 py-3 w-80 break-words whitespace-pre-wrap text-blue-600 hover:underline"
+                      onClick={() => handleNavigateWithDelay(task.id)}
+                    >
+                      {task['Tên công việc']}
+                    </td>
                     <td className="px-4 py-3 w-44 break-words whitespace-pre-wrap">{task['Các lĩnh vực công tác']}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-block px-3 py-1 w-20 rounded-full text-xs font-medium
@@ -141,16 +145,6 @@ const DashboardPage = () => {
                           'bg-gray-100 text-gray-500'}`}>
                         {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {(!task['Đánh giá kết quả'] || task['Đánh giá kết quả'] === 'Chưa đánh giá') && (
-                        <button
-                          className="text-sm text-indigo-600 underline hover:text-indigo-800"
-                          onClick={() => navigate(`/bao-cao?id=${task.id}`)}
-                        >
-                          Cập nhật báo cáo
-                        </button>
-                      )}
                     </td>
                   </tr>
                 ))
