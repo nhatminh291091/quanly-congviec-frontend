@@ -27,7 +27,7 @@ const DashboardPage = () => {
       setError(null);
       setIsLoading(true);
       try {
-        const rawData = await apiService.get('api/tasks/all');
+        const rawData = await apiService.get('api/tasks');
         if (!Array.isArray(rawData)) {
           throw new Error('Invalid data format received');
         }
