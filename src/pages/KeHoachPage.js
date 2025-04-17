@@ -18,8 +18,14 @@ const KeHoachPage = () => {
 
   const parseDMY = (dateStr) => {
     if (!dateStr) return null;
-    const [d, m, y] = dateStr.split('/');
-    return new Date(`${y}-${m}-${d}`);
+    try {
+      const [d, m, y] = dateStr.split('/');
+      const date = new Date(`${y}-${m}-${d}`);
+      return isNaN(date.getTime()) ? null : date;
+    } catch (err) {
+      console.error('Invalid date format:', dateStr);
+      return null;
+    }
   };
 
   const formatDate = (isoDate) => {
@@ -72,7 +78,54 @@ const KeHoachPage = () => {
     setFormData(prev => ({ ...prev, nguoiThucHien: selected }));
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  const validateForm = () => {
+    if (!formData.tenCongViec.trim()) {
+      alert('Vui lòng nhập tên công việc');
+      return false;
+    }
+    if (!formData.linhVuc) {
+      alert('Vui lòng chọn lĩnh vực');
+      return false;
+    }
+    if (!formData.tienDo) {
+      alert('Vui lòng chọn tiến độ');
+      return false;
+    }
+    if (!formData.chuTri) {
+      alert('Vui lòng chọn người chủ trì');
+      return false;
+    }
+    if (!formData.thoiGianHoanThanh) {
+      alert('Vui lòng chọn thời gian hoàn thành');
+      return false;
+    }
+    if (formData.nguoiThucHien.length === 0) {
+      alert('Vui lòng chọn ít nhất một người thực hiện');
+      return false;
+    }
+    return true;
+  };
+
+  const resetForm = () => {
+    setFormData({
+      tenCongViec: '',
+      linhVuc: '',
+      tienDo: '',
+      chuTri: '',
+      thoiGianHoanThanh: '',
+      nguoiThucHien: []
+    });
+  };
+
   const handleSubmit = async () => {
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    setError(null);
+    
     try {
       const payload = {
         "Tên công việc": formData.tenCongViec,
@@ -86,12 +139,19 @@ const KeHoachPage = () => {
       await apiService.post('api/tasks/add', payload);
       alert('✅ Công việc đã được lưu!');
       setShowForm(false);
-      window.location.reload();
+      resetForm();
+      
+      // Refresh tasks list without page reload
+      const newTasks = await apiService.get('api/tasks');
+      setTasks(newTasks);
     } catch (error) {
       console.error('❌ Lỗi khi lưu công việc:', error);
-      alert('Đã có lỗi xảy ra khi lưu công việc.');
+      setError('Đã có lỗi xảy ra khi lưu công việc.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
   return (
     <div className="flex flex-col flex-1">
       <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-green-400 via-blue-400 to-purple-500 text-white shadow-md">
@@ -160,10 +220,18 @@ const KeHoachPage = () => {
             </div>
           </div>
           <div className="pt-4">
-            <button onClick={handleSubmit}
-              className="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700">
-              💾 Lưu công việc
+            <button 
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700 disabled:bg-gray-400"
+            >
+              {isSubmitting ? '⏳ Đang lưu...' : '💾 Lưu công việc'}
             </button>
+            {error && (
+              <div className="text-red-500 mt-2">
+                {error}
+              </div>
+            )}
           </div>
         </div>
       )}
