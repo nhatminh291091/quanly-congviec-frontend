@@ -22,12 +22,7 @@ const Sidebar = ({ onToggle, sidebarExpanded }) => {
       onMouseLeave={() => onToggle(false)}
       style={{ width: sidebarExpanded ? 220 : 60 }}
     >
-      <div className="p-4 text-center">
-        <span className="block text-xs font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300">
-          🌈 Thanh điều khiển
-        </span>
-      </div>
-
+      
       <ul className="flex flex-col gap-2 mt-6 px-2">
         {menu.map((item, idx) => (
           <Link key={idx} to={item.path}>
