@@ -55,7 +55,7 @@ const KeHoachPage = () => {
 
         setTasks(filtered);
 
-        const dulieuRes = await apiService.get('api/dulieu');
+        const dulieuRes = await apiService.get('api/sheets/dulieu');
         setDulieu(dulieuRes);
       } catch (err) {
         console.error('Lỗi lấy dữ liệu:', err);
