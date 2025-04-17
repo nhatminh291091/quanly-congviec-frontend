@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { apiService } from '../services/api';
 
@@ -34,7 +33,7 @@ const KeHoachPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const allTasks = await apiService.get('api/quanly');
+        const allTasks = await apiService.get('api/tasks');
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
@@ -84,7 +83,7 @@ const KeHoachPage = () => {
         "Người thực hiện": formData.nguoiThucHien.join('; ')
       };
 
-      await apiService.post('api/quanly/add', payload);
+      await apiService.post('api/tasks/add', payload);
       alert('✅ Công việc đã được lưu!');
       setShowForm(false);
       window.location.reload();
@@ -93,7 +92,6 @@ const KeHoachPage = () => {
       alert('Đã có lỗi xảy ra khi lưu công việc.');
     }
   };
-
   return (
     <div className="flex flex-col flex-1">
       <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-green-400 via-blue-400 to-purple-500 text-white shadow-md">
