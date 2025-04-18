@@ -64,43 +64,7 @@ const DashboardPage = () => {
     fetchAllTasks();
   }, []);
 
-  const toggleForm = (index, task) => {
-    if (activeFormIndex === index) {
-      setActiveFormIndex(null);
-      setFormData({});
-    } else {
-      setActiveFormIndex(index);
-      setFormData({
-        description: task['Mô tả kết quả thực hiện'] || '',
-        issues: task['Tồn tại, nguyên nhân'] || '',
-        suggestions: task['Đề xuất, kiến nghị'] || '',
-        completionDate: task['Thời gian hoàn thành'] || ''
-      });
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = (index) => {
-    const task = taskList[index];
-    const updated = {
-      ...task,
-      'Mô tả kết quả thực hiện': formData.description,
-      'Tồn tại, nguyên nhân': formData.issues,
-      'Đề xuất, kiến nghị': formData.suggestions,
-      'Thời gian hoàn thành': formData.completionDate
-    };
-    const newList = [...taskList];
-    newList[index] = updated;
-    setTaskList(newList);
-    setActiveFormIndex(null);
-    alert('Đã lưu báo cáo (giả lập)');
-  };
-
-  const isCurrentMonth = (dateStr) => {
+ const isCurrentMonth = (dateStr) => {
     const [day, month, year] = dateStr.split('/').map(Number);
     const today = new Date();
     return month === today.getMonth() + 1 && year === today.getFullYear();
