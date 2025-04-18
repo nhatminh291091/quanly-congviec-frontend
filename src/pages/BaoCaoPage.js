@@ -31,12 +31,13 @@ const BaoCaoPage = () => {
         const fallback = state?.task || flatTasks.find((t, i) => i === parseInt(id));
         if (fallback) setTask(fallback);
 
-        const staffSheetURL = 'https://docs.google.com/spreadsheets/d/115UfbCJLmv0RADrEHLgcBX4Ci5lWDmMTW8oc5db7uzs/gviz/tq?tqx=out:json&sheet=DULIEU';
-        const res = await fetch(staffSheetURL);
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/1V4vduiq2a2zL020mWmd1MSFoknfL2XLTSOdD0c2dPoI/gviz/tq?tqx=out:json&sheet=DULIEU';
+        const res = await fetch(sheetUrl);
         const text = await res.text();
         const json = JSON.parse(text.substring(47).slice(0, -2));
         const names = json.table.rows.map(row => row.c[4]?.v).filter(Boolean);
-        setStaffList(names);
+        const uniqueNames = [...new Set(names)];
+        setStaffList(uniqueNames);
       } catch (err) {
         console.error("Lỗi tải dữ liệu nhân sự:", err);
       }
