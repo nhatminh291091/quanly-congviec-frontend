@@ -6,9 +6,10 @@ const SoDoLienKet = () => {
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js";
-    script.onload = () => {
+    script.onload = async () => {
       if (window.mermaid) {
         window.mermaid.initialize({ startOnLoad: false });
+
         const diagram = `
           graph TD
             A[Quy chế tổ chức và hoạt động] --> B[Quy chế làm việc]
@@ -21,18 +22,22 @@ const SoDoLienKet = () => {
             E[Quy định chức năng, nhiệm vụ, cơ cấu tổ chức] --> B
             F[Quyết định thành lập các đơn vị] --> B
         `;
-        window.mermaid.render("my-mermaid", diagram, (svgCode) => {
+
+        try {
+          const { svg } = await window.mermaid.render("myDiagram", diagram);
           if (containerRef.current) {
-            containerRef.current.innerHTML = svgCode;
+            containerRef.current.innerHTML = svg;
           }
-        });
+        } catch (err) {
+          console.error("Mermaid render failed:", err);
+        }
       }
     };
     document.body.appendChild(script);
   }, []);
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold text-blue-800 mb-6">Sơ đồ liên kết văn bản</h1>
       <div
         ref={containerRef}
