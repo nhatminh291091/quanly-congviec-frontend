@@ -1,4 +1,4 @@
-// ✅ BẢN CẬP NHẬT TỐI ƯU: Giao diện cố định, phân vùng rõ sidebar và form
+// ✅ BẢN CẬP NHẬT TỐI ƯU: Giao diện cố định, phân vùng rõ sidebar và form, khung thông tin nổi bật, rộng hơn
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
@@ -76,10 +76,10 @@ const BaoCaoPage = () => {
   return (
     <div className="flex flex-col md:flex-row gap-6 p-4 md:p-8">
       {/* MAIN FORM */}
-      <div className="flex-1 max-w-4xl">
+      <div className="flex-1 max-w-5xl">
         <h2 className="text-2xl font-bold text-indigo-700 mb-4">📝 Báo cáo công việc</h2>
 
-        <div className="bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-400 text-sm rounded-xl shadow-md p-4 mb-6">
+        <div className="bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-400 text-sm rounded-xl shadow-md p-6 mb-6 min-w-full">
           <p><strong className="text-indigo-800">Tên công việc:</strong> {task['Tên công việc']}</p>
           <p><strong className="text-indigo-800">Lĩnh vực:</strong> {task['Các lĩnh vực công tác']}</p>
           <p><strong className="text-indigo-800">Người chủ trì:</strong> {task['Người chủ trì']}</p>
@@ -128,7 +128,7 @@ const BaoCaoPage = () => {
 
       {/* SIDEBAR CỐ ĐỊNH */}
       <aside className="w-full md:w-96 h-screen sticky top-0 overflow-y-auto bg-indigo-50 border-l border-indigo-300 shadow-inner rounded-xl p-4">
-        <h3 className="text-lg font-semibold text-indigo-800 mb-3">📌 DS công việc chưa báo cáo</h3>
+        <h3 className="text-lg font-semibold text-indigo-800 mb-3">📌 Các công việc chưa có báo cáo</h3>
         <div className="flex flex-col gap-2 text-sm">
           {tasksChuaBaoCao.map((t, idx) => (
             <div
