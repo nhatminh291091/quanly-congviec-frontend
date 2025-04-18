@@ -21,7 +21,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/ke-hoach" element={<KeHoachPage />} />
             <Route path="/bao-cao" element={<BaoCaoPage />} />
-            <Route pathh="/so-do-lien-ket" element={<SoDoLienKet />} />
+            <Route path="/so-do-lien-ket" element={<SoDoLienKet />} />
           </Routes>
         </main>
       </div>
