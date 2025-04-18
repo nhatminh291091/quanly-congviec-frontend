@@ -4,10 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 const BaoCaoPage = () => {
-  const location = useLocation(  </div>
-);
-  const navigate = useNavigate(  </div>
-);
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search  </div>
 );
   const id = queryParams.get('id'  </div>
