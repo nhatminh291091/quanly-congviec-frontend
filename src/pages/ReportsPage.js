@@ -1,107 +1,82 @@
+// 📄 ReportPage.js
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
-import Header from '../components/Header';
 
-const ReportsPage = () => {
-  const [reports, setReports] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [selectedEvaluation, setSelectedEvaluation] = useState('');
+const ReportPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [task, setTask] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    issues: '',
+    completionDate: '',
+    suggestions: ''
+  });
 
   useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        const rawData = await apiService.get('api/tasks/all');
-        const data = rawData.flat();
-        const filtered = data.filter(task => task['Mô tả kết quả thực hiện']);
-        setReports(filtered);
-      } catch (error) {
-        console.error('Lỗi tải dữ liệu báo cáo:', error);
-        setReports([]);
-      } finally {
-        setIsLoading(false);
+    const fetchTask = async () => {
+      const rawData = await apiService.get('api/tasks');
+      const flatData = rawData.flat();
+      const currentTask = flatData.find((t, index) => t.id === id || index.toString() === id);
+      if (currentTask) {
+        setTask(currentTask);
       }
     };
-    fetchReports();
-  }, []);
+    fetchTask();
+  }, [id]);
 
-  const handleEvaluate = (index) => {
-    const updated = [...reports];
-    updated[index]['Đánh giá kết quả'] = selectedEvaluation;
-    setReports(updated);
-    setEditingIndex(null);
-    setSelectedEvaluation('');
-    alert('Đã cập nhật đánh giá kết quả (giả lập)');
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleSubmit = () => {
+    alert('Gửi báo cáo thành công (giả lập)');
+    navigate('/');
+  };
+
+  if (!task) return <div className="p-8">Đang tải công việc...</div>;
+
   return (
-    <div className="p-6">
-      <Header title="Công việc đã báo cáo" />
-      {isLoading ? (
-        <p className="italic text-gray-500">Đang tải dữ liệu...</p>
-      ) : (
-        <div className="overflow-auto">
-          <table className="table-auto w-full border">
-            <thead className="bg-blue-100">
-              <tr>
-                <th>#</th>
-                <th>Tên công việc</th>
-                <th>Tiến độ</th>
-                <th>Người thực hiện</th>
-                <th>Đơn vị phối hợp</th>
-                <th>Mô tả kết quả</th>
-                <th>Tồn tại</th>
-                <th>Hoàn thành</th>
-                <th>Đề xuất</th>
-                <th>Đánh giá</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((r, i) => (
-                <tr key={i} className="border-t">
-                  <td>{i + 1}</td>
-                  <td className="font-semibold text-blue-700">{r['Tên công việc']}</td>
-                  <td>{r['Tiến độ']}</td>
-                  <td>{r['Người thực hiện']}</td>
-                  <td>{r['Đơn vị phối hợp']}</td>
-                  <td>{r['Mô tả kết quả thực hiện']}</td>
-                  <td>{r['Tồn tại, nguyên nhân']}</td>
-                  <td>{r['Thời gian hoàn thành']}</td>
-                  <td>{r['Đề xuất, kiến nghị']}</td>
-                  <td>
-                    {editingIndex === i ? (
-                      <div className="flex gap-2">
-                        <select
-                          value={selectedEvaluation}
-                          onChange={e => setSelectedEvaluation(e.target.value)}
-                          className="border rounded p-1"
-                        >
-                          <option value="">-- Chọn --</option>
-                          <option>Hoàn thành</option>
-                          <option>Theo tiến độ</option>
-                          <option>Chậm tiến độ</option>
-                          <option>Không hoàn thành</option>
-                        </select>
-                        <button
-                          className="bg-green-500 text-white px-2 rounded"
-                          onClick={() => handleEvaluate(i)}
-                        >✔</button>
-                      </div>
-                    ) : (
-                      <button
-                        className="text-indigo-600 underline text-sm"
-                        onClick={() => setEditingIndex(i)}
-                      >Đánh giá</button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="p-8 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold text-indigo-700 mb-6">📝 Báo cáo công việc</h2>
+
+      <div className="bg-white shadow rounded p-6 mb-6">
+        <p><strong>Tên công việc:</strong> {task['Tên công việc']}</p>
+        <p><strong>Lĩnh vực:</strong> {task['Các lĩnh vực công tác']}</p>
+        <p><strong>Người chủ trì:</strong> {task['Người chủ trì']}</p>
+        <p><strong>Tiến độ:</strong> {task['Tiến độ']}</p>
+      </div>
+
+      <div className="bg-white shadow rounded p-6">
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Tên người thực hiện</label>
+          <input name="name" value={formData.name} onChange={handleChange} className="w-full border rounded p-2" />
         </div>
-      )}
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Mô tả kết quả thực hiện</label>
+          <textarea name="description" value={formData.description} onChange={handleChange} className="w-full border rounded p-2" rows="2" />
+        </div>
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Tồn tại, nguyên nhân</label>
+          <textarea name="issues" value={formData.issues} onChange={handleChange} className="w-full border rounded p-2" rows="2" />
+        </div>
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Thời gian hoàn thành</label>
+          <input type="date" name="completionDate" value={formData.completionDate} onChange={handleChange} className="w-full border rounded p-2" />
+        </div>
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Đề xuất, kiến nghị</label>
+          <textarea name="suggestions" value={formData.suggestions} onChange={handleChange} className="w-full border rounded p-2" rows="2" />
+        </div>
+        <button onClick={handleSubmit} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+          Gửi báo cáo
+        </button>
+      </div>
     </div>
   );
 };
 
-export default ReportsPage;
+export default ReportPage;
