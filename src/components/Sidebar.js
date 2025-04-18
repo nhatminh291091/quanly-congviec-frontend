@@ -12,6 +12,7 @@ const Sidebar = ({ onToggle, sidebarExpanded }) => {
     { name: 'Thống kê', path: '/thong-ke', icon: <BarChart3 size={20} /> },
     { name: 'Báo cáo', path: '/bao-cao', icon: <FileBarChart size={20} /> },
     { name: 'Kế hoạch tháng tới', path: '/ke-hoach', icon: <CalendarCheck size={20} /> }
+    { name: 'Sơ đồ liên kết', path: '/so-do-lien-ket', icon: <span className="text-lg">🧭</span> }
   ];
 
   return (
