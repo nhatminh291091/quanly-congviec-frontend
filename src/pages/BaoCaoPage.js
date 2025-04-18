@@ -1,13 +1,12 @@
-// 📄 BaoCaoPage.js
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 const BaoCaoPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get('id');
-  const navigate = useNavigate();
   const state = location.state;
 
   const [task, setTask] = useState(null);
@@ -20,26 +19,29 @@ const BaoCaoPage = () => {
   });
 
   useEffect(() => {
-    if (state && state.task) {
-      setTask(state.task);
-    } else {
-      const fetchTask = async () => {
+    const loadTask = async () => {
+      if (state && state.task) {
+        console.log("✅ Nhận task từ state:", state.task);
+        setTask(state.task);
+      } else {
         try {
+          console.log("🌐 Đang gọi lại API để fallback theo ID");
           const rawData = await apiService.get('api/tasks');
           const flatData = rawData.flat();
-          const fallbackTask = flatData.find((_, index) => index.toString() === id);
-          if (fallbackTask) {
-            setTask(fallbackTask);
+          const fallback = flatData[parseInt(id)];
+          if (fallback) {
+            console.log("✅ Tìm thấy task fallback:", fallback);
+            setTask(fallback);
           } else {
-            console.warn('⚠️ Không tìm thấy công việc theo ID:', id);
+            console.warn("⚠️ Không tìm thấy công việc với ID:", id);
           }
         } catch (err) {
-          console.error('❌ Lỗi tải công việc:', err);
+          console.error("❌ Lỗi khi gọi API:", err);
         }
-      };
-      if (id) fetchTask();
-    }
-  }, [state, id]);
+      }
+    };
+    loadTask();
+  }, [id, state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,11 +53,13 @@ const BaoCaoPage = () => {
     navigate('/');
   };
 
-  if (!task) return (
-    <div className="p-8 text-red-600">
-      ❌ Không tìm thấy công việc tương ứng với ID: {id}
-    </div>
-  );
+  if (!task) {
+    return (
+      <div className="p-8 text-center text-red-600 text-lg">
+        ❌ Không tìm thấy công việc phù hợp với ID: {id}
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
