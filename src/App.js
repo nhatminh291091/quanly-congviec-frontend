@@ -19,7 +19,7 @@ function App() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/ke-hoach" element={<KeHoachPage />} />
-            <Route path="/bao-cao/:id" element={<BaoCaoPage />} />
+            <Route path="/bao-cao" element={<BaoCaoPage />} />
           </Routes>
         </main>
       </div>
