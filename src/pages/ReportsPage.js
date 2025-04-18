@@ -1,11 +1,13 @@
-// 📄 ReportPage.js
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 
-const ReportPage = () => {
-  const { id } = useParams();
+const BaoCaoPage = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const id = queryParams.get('id');
   const navigate = useNavigate();
+
   const [task, setTask] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -19,12 +21,12 @@ const ReportPage = () => {
     const fetchTask = async () => {
       const rawData = await apiService.get('api/tasks');
       const flatData = rawData.flat();
-      const currentTask = flatData.find((t, index) => t.id === id || index.toString() === id);
+      const currentTask = flatData.find((t, index) => t.id == id || index.toString() === id);
       if (currentTask) {
         setTask(currentTask);
       }
     };
-    fetchTask();
+    if (id) fetchTask();
   }, [id]);
 
   const handleChange = (e) => {
@@ -79,4 +81,4 @@ const ReportPage = () => {
   );
 };
 
-export default ReportPage;
+export default BaoCaoPage;
