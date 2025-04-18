@@ -1,3 +1,6 @@
+// ✅ ĐÃ LƯU Ý: Đoạn mã gốc vẫn giữ lại phần hiển thị form cập nhật báo cáo ngay tại DashboardPage.
+// Để đảm bảo chuyển hướng sang /bao-cao hoạt động đúng và tránh xung đột, ta cần xoá hoàn toàn phần cập nhật inline.
+
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -8,18 +11,10 @@ const toISODate = (str) => {
   return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
 };
 
-const fromISODate = (str) => {
-  if (!str) return '';
-  const [y, m, d] = str.split('-');
-  return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
-};
-
 const DashboardPage = () => {
   const [taskList, setTaskList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeFormIndex, setActiveFormIndex] = useState(null);
-  const [formData, setFormData] = useState({});
   const [filterLinhVuc, setFilterLinhVuc] = useState('');
   const [filterDanhGia, setFilterDanhGia] = useState('');
   const [filterChuTri, setFilterChuTri] = useState('');
@@ -32,16 +27,9 @@ const DashboardPage = () => {
       setIsLoading(true);
       try {
         const rawData = await apiService.get('api/tasks');
-        if (!Array.isArray(rawData)) {
-          throw new Error('Invalid data format received');
-        }
+        if (!Array.isArray(rawData)) throw new Error('Invalid data format received');
 
-        const tasks = rawData.flat().map((task, index) => {
-          if (!task['Tên công việc']) {
-            console.warn(`Task at index ${index} is missing required fields`);
-          }
-          return { ...task, id: task.id || index };
-        });
+        const tasks = rawData.flat().map((task, index) => ({ ...task, id: task.id || index }));
 
         tasks.sort((a, b) => {
           const aEval = a['Đánh giá kết quả']?.toLowerCase() || '';
@@ -64,28 +52,16 @@ const DashboardPage = () => {
     fetchAllTasks();
   }, []);
 
- const isCurrentMonth = (dateStr) => {
+  const getDeadlineStatusClass = (dateStr) => {
+    if (!dateStr) return 'bg-gray-100 text-gray-500';
     const [day, month, year] = dateStr.split('/').map(Number);
+    const deadline = new Date(year, month - 1, day);
     const today = new Date();
-    return month === today.getMonth() + 1 && year === today.getFullYear();
-  };
-const getDeadlineStatusClass = (dateStr) => {
-  if (!dateStr) return 'bg-gray-100 text-gray-500';
-  const [day, month, year] = dateStr.split('/').map(Number);
-  const deadline = new Date(year, month - 1, day);
-  const today = new Date();
-  const diffTime = deadline - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 0) return 'bg-red-100 text-red-800'; // Quá hạn
-  if (diffDays <= 3) return 'bg-orange-100 text-orange-800'; // Gần đến hạn
-  return 'bg-green-100 text-green-800'; // Còn xa
-};
-
-  const isPastMonth = (dateStr) => {
-    const [day, month, year] = dateStr.split('/').map(Number);
-    const today = new Date();
-    return year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth() + 1);
+    const diffTime = deadline - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return 'bg-red-100 text-red-800';
+    if (diffDays <= 3) return 'bg-orange-100 text-orange-800';
+    return 'bg-green-100 text-green-800';
   };
 
   const filteredTasks = taskList.filter(task => {
@@ -162,69 +138,33 @@ const getDeadlineStatusClass = (dateStr) => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {filteredTasks.map((task, index) => (
-                    <React.Fragment key={index}>
-                      <tr className="hover:bg-indigo-50 transition cursor-pointer">
-                        <td className="px-4 py-3 w-10 text-center">{taskList.indexOf(task) + 1}</td>
-                        <td
-                          className="px-4 py-3 text-blue-600 hover:underline"
-                          onClick={() => navigate(`/bao-cao?id=${task.id || index}`, { state: { task } })}
-                        >
-                          {task['Tên công việc']}
-                        </td>
-                        <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-block px-3 py-1 w-24 rounded-full text-xs font-medium shadow-sm ${getDeadlineStatusClass(task['Tiến độ'])}`}>
-                            {task['Tiến độ']}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">{task['Người chủ trì']}</td>
-                        <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-block px-3 py-1 w-36 rounded-full text-xs font-semibold shadow-sm
-                            ${task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
-                              task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
-                              task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
-                              task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
-                              'bg-gray-100 text-gray-500'}`}>
-                            {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
-                          </span>
-                        </td>
-                      </tr>
-                      {activeFormIndex === index && (
-                        <tr>
-                          <td colSpan="7" className="bg-gray-50 px-6 py-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block font-medium">Mô tả kết quả thực hiện</label>
-                                <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full border rounded p-2" rows="2" />
-                              </div>
-                              <div>
-                                <label className="block font-medium">Tồn tại, nguyên nhân</label>
-                                <textarea name="issues" value={formData.issues} onChange={handleInputChange} className="w-full border rounded p-2" rows="2" />
-                              </div>
-                              <div>
-                                <label className="block font-medium">Thời gian hoàn thành</label>
-                                <input
-                                  type="date"
-                                  name="completionDate"
-                                  value={toISODate(formData.completionDate)}
-                                  onChange={(e) => handleInputChange({ target: { name: 'completionDate', value: fromISODate(e.target.value) } })}
-                                  className="w-full border rounded p-2"
-                                />
-                              </div>
-                              <div>
-                                <label className="block font-medium">Đề xuất, kiến nghị</label>
-                                <textarea name="suggestions" value={formData.suggestions} onChange={handleInputChange} className="w-full border rounded p-2" rows="2" />
-                              </div>
-                            </div>
-                            <div className="mt-4 flex gap-4">
-                              <button onClick={() => handleSave(index)} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Lưu báo cáo</button>
-                              <button onClick={() => setActiveFormIndex(null)} className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Hủy</button>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
+                    <tr key={index} className="hover:bg-indigo-50 transition cursor-pointer">
+                      <td className="px-4 py-3 w-10 text-center">{index + 1}</td>
+                      <td
+                        className="px-4 py-3 text-blue-600 hover:underline"
+                        onClick={() => navigate(`/bao-cao?id=${task.id || index}`, { state: { task } })}
+                      >
+                        {task['Tên công việc']}
+                      </td>
+                      <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-3 py-1 w-24 rounded-full text-xs font-medium shadow-sm ${getDeadlineStatusClass(task['Tiến độ'])}`}>
+                          {task['Tiến độ']}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">{task['Người chủ trì']}</td>
+                      <td className="px-4 py-3">{task['Thời gian hoàn thành']}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-3 py-1 w-36 rounded-full text-xs font-semibold shadow-sm
+                          ${task['Đánh giá kết quả']?.toLowerCase().includes('hoàn thành') ? 'bg-green-200 text-green-800' :
+                            task['Đánh giá kết quả']?.toLowerCase().includes('theo tiến độ') ? 'bg-blue-200 text-blue-800' :
+                            task['Đánh giá kết quả']?.toLowerCase().includes('chậm') ? 'bg-yellow-200 text-yellow-800' :
+                            task['Đánh giá kết quả']?.toLowerCase().includes('không hoàn thành') ? 'bg-red-200 text-red-800' :
+                            'bg-gray-100 text-gray-500'}`}>
+                          {task['Đánh giá kết quả'] || 'Chưa đánh giá'}
+                        </span>
+                      </td>
+                    </tr>
                   ))}
                 </tbody>
               </table>
