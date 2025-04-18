@@ -1,4 +1,4 @@
-// ✅ BẢN CẬP NHẬT TỐI ƯU: Giao diện cố định, phân vùng rõ sidebar và form, khung thông tin nổi bật, rộng hơn
+// ✅ BẢN CẬP NHẬT TỐI ƯU: Giao diện cố định, phân vùng rõ sidebar và form
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
@@ -67,7 +67,10 @@ const BaoCaoPage = () => {
     navigate('/');
   };
 
-  const tasksChuaBaoCao = allTasks.filter(t => !t['Mô tả kết quả thực hiện']);
+  const tasksChuaBaoCao = allTasks.filter(t => {
+    const dg = t['Đánh giá kết quả']?.trim().toLowerCase();
+    return !dg || dg === 'chưa đánh giá';
+  });
 
   if (!task) {
     return <div className="p-8 text-center text-red-600">❌ Không tìm thấy công việc phù hợp với ID: {id}</div>;
@@ -76,14 +79,14 @@ const BaoCaoPage = () => {
   return (
     <div className="flex flex-col md:flex-row gap-6 p-4 md:p-8">
       {/* MAIN FORM */}
-      <div className="flex-1 max-w-5xl">
-        <h2 className="text-2xl font-bold text-indigo-700 mb-4">📝 Báo cáo công việc</h2>
+      <div className="flex-1 min-w-[680px] max-w-5xl">
+        <h2 className="text-3xl font-bold text-indigo-700 mb-4">📝 Báo cáo công việc</h2>
 
-        <div className="bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-400 text-sm rounded-xl shadow-md p-6 mb-6 min-w-full">
-          <p><strong className="text-indigo-800">Tên công việc:</strong> {task['Tên công việc']}</p>
-          <p><strong className="text-indigo-800">Lĩnh vực:</strong> {task['Các lĩnh vực công tác']}</p>
-          <p><strong className="text-indigo-800">Người chủ trì:</strong> {task['Người chủ trì']}</p>
-          <p><strong className="text-indigo-800">Tiến độ:</strong> {task['Tiến độ']}</p>
+        <div className="bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-400 text-base rounded-xl shadow-md p-5 mb-6 min-h-[150px]">
+          <p><strong className="text-indigo-900">Tên công việc:</strong> <span className="font-semibold text-purple-800">{task['Tên công việc']}</span></p>
+          <p><strong className="text-indigo-900">Lĩnh vực:</strong> {task['Các lĩnh vực công tác']}</p>
+          <p><strong className="text-indigo-900">Người chủ trì:</strong> {task['Người chủ trì']}</p>
+          <p><strong className="text-indigo-900">Tiến độ:</strong> {task['Tiến độ']}</p>
         </div>
 
         <div className="bg-white border border-gray-200 shadow rounded-xl p-6">
