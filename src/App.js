@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import KeHoachPage from './pages/KeHoachPage';
 import BaoCaoPage from './pages/BaoCaoPage';
+import SoDoLienKet from './pages/SoDoLienKet';
 function App() {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
@@ -20,6 +21,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/ke-hoach" element={<KeHoachPage />} />
             <Route path="/bao-cao" element={<BaoCaoPage />} />
+            <Route pathh="/so-do-lien-ket" element={<SoDoLienKet />} />
           </Routes>
         </main>
       </div>
