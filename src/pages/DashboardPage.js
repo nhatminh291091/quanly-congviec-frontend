@@ -203,7 +203,7 @@ const getDeadlineStatusClass = (dateStr) => {
                         <td className="px-4 py-3 w-10 text-center">{taskList.indexOf(task) + 1}</td>
                         <td
                           className="px-4 py-3 text-blue-600 hover:underline"
-                          onClick={() => navigate(`/bao-cao?id=${task.id || index}`)}
+                          onClick={() => navigate(`/bao-cao?id=${task.id || index}`, { state: { task } })}
                         >
                           {task['Tên công việc']}
                         </td>
