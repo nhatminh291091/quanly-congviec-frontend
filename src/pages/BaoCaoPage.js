@@ -1,3 +1,4 @@
+// 📄 BaoCaoPage.js
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
@@ -22,7 +23,6 @@ const BaoCaoPage = () => {
     if (state && state.task) {
       setTask(state.task);
     } else {
-      // fallback nếu user F5 hoặc mở trực tiếp
       const fetchTask = async () => {
         try {
           const rawData = await apiService.get('api/tasks');
@@ -30,12 +30,14 @@ const BaoCaoPage = () => {
           const fallbackTask = flatData.find((_, index) => index.toString() === id);
           if (fallbackTask) {
             setTask(fallbackTask);
+          } else {
+            console.warn('⚠️ Không tìm thấy công việc theo ID:', id);
           }
         } catch (err) {
           console.error('❌ Lỗi tải công việc:', err);
         }
       };
-      fetchTask();
+      if (id) fetchTask();
     }
   }, [state, id]);
 
