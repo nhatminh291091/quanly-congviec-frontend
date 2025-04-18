@@ -8,7 +8,7 @@ const BaoCaoPage = () => {
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get('id');
   const navigate = useNavigate();
-
+  const state = location.state;
   const [task, setTask] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -19,25 +19,10 @@ const BaoCaoPage = () => {
   });
 
   useEffect(() => {
-    const fetchTask = async () => {
-      try {
-        const rawData = await apiService.get('api/tasks');
-        const flatData = rawData.flat();
-        console.log('📦 Dữ liệu công việc:', flatData);
-        console.log('🔍 ID từ URL:', id);
-
-        const currentTask = flatData.find((_, index) => index.toString() === id);
-        console.log('✅ Công việc tìm được:', currentTask);
-
-        if (currentTask) {
-          setTask(currentTask);
-        }
-      } catch (error) {
-        console.error('❌ Lỗi khi tải công việc:', error);
-      }
-    };
-    if (id) fetchTask();
-  }, [id]);
+  if (state && state.task) {
+    setTask(state.task);
+  }
+}, [state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
