@@ -19,6 +19,7 @@ function App() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/ke-hoach" element={<KeHoachPage />} />
+            <Route pathh="/report/:id" element={<ReportPage />} />
           </Routes>
         </main>
       </div>
