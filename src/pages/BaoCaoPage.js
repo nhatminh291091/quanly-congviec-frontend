@@ -4,86 +4,121 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 const BaoCaoPage = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const queryParams = new URLSearchParams(location.search);
-  const id = queryParams.get('id');
+  const location = useLocation(  </div>
+);
+  const navigate = useNavigate(  </div>
+);
+  const queryParams = new URLSearchParams(location.search  </div>
+);
+  const id = queryParams.get('id'  </div>
+);
   const state = location.state;
 
-  const [task, setTask] = useState(null);
+  const [task, setTask] = useState(null  </div>
+);
   const [formData, setFormData] = useState({
     description: '',
     issues: '',
     completionDate: '',
     suggestions: '',
     nguoiThucHien: []
-  });
-  const [allTasks, setAllTasks] = useState([]);
-  const [staffList, setStaffList] = useState([]);
+  }  </div>
+);
+  const [allTasks, setAllTasks] = useState([]  </div>
+);
+  const [staffList, setStaffList] = useState([]  </div>
+);
 
   useEffect(() => {
     const fetchTasksAndStaff = async () => {
       try {
-        const taskRes = await apiService.get('api/tasks');
-        const flatTasks = taskRes.flat();
-        setAllTasks(flatTasks);
+        const taskRes = await apiService.get('api/tasks'  </div>
+);
+        const flatTasks = taskRes.flat(  </div>
+);
+        setAllTasks(flatTasks  </div>
+);
 
-        const fallback = state?.task || flatTasks.find((t, i) => i === parseInt(id));
-        if (fallback) setTask(fallback);
+        const fallback = state?.task || flatTasks.find((t, i) => i === parseInt(id)  </div>
+);
+        if (fallback) setTask(fallback  </div>
+);
 
         const sheetUrl = 'https://docs.google.com/spreadsheets/d/1V4vduiq2a2zL020mWmd1MSFoknfL2XLTSOdD0c2dPoI/gviz/tq?tqx=out:json&sheet=DULIEU';
-        const res = await fetch(sheetUrl);
-        const text = await res.text();
-        const json = JSON.parse(text.substring(47).slice(0, -2));
-        const names = json.table.rows.map(row => row.c[4]?.v).filter(Boolean);
+        const res = await fetch(sheetUrl  </div>
+);
+        const text = await res.text(  </div>
+);
+        const json = JSON.parse(text.substring(47).slice(0, -2)  </div>
+);
+        const names = json.table.rows.map(row => row.c[4]?.v).filter(Boolean  </div>
+);
         const uniqueNames = [...new Set(names)];
-        setStaffList(uniqueNames);
+        setStaffList(uniqueNames  </div>
+);
       } catch (err) {
-        console.error("Lỗi tải dữ liệu nhân sự:", err);
+        console.error("Lỗi tải dữ liệu nhân sự:", err  </div>
+);
       }
     };
-    fetchTasksAndStaff();
-  }, [id, state]);
+    fetchTasksAndStaff(  </div>
+);
+  }, [id, state]  </div>
+);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === 'checkbox') {
       setFormData(prev => {
-        const exists = prev.nguoiThucHien.includes(value);
+        const exists = prev.nguoiThucHien.includes(value  </div>
+);
         return {
           ...prev,
           nguoiThucHien: exists
             ? prev.nguoiThucHien.filter(n => n !== value)
             : [...prev.nguoiThucHien, value]
         };
-      });
+      }  </div>
+);
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData(prev => ({ ...prev, [name]: value })  </div>
+);
     }
   };
 
   const handleSubmit = () => {
-    alert('Gửi báo cáo thành công (giả lập)');
-    navigate('/');
+    alert('Gửi báo cáo thành công (giả lập)'  </div>
+);
+    navigate('/'  </div>
+);
   };
 
   const tasksChuaBaoCao = allTasks.filter(t => {
-    const dg = t['Đánh giá kết quả']?.trim().toLowerCase();
+    const dg = t['Đánh giá kết quả']?.trim().toLowerCase(  </div>
+);
     return !dg || dg === 'chưa đánh giá';
-  });
+  }  </div>
+);
 
-  if (!task) {
-    return <div className="p-8 text-center text-red-600">❌ Không tìm thấy công việc phù hợp với ID: {id}</div>;
-  }
+  
 
   return (
+  <div className="flex flex-col">
+    {!task && (
+      <div className="text-red-600 text-center w-full px-6 py-4">❌ Không tìm thấy công việc phù hợp với ID: {id}</div>
+    )}
+    <header className="px-6 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white shadow-md">
+      <h1 className="text-3xl font-extrabold tracking-tight">📝 Báo cáo công việc</h1>
+    </header>
     <div className="flex flex-col md:flex-row gap-6 p-4 md:p-8">
-      {/* MAIN FORM */}
-      <div className="flex-1 min-w-[680px] max-w-5xl">
       <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white shadow-md">
         <h1 className="text-3xl font-extrabold tracking-tight">📝 Báo cáo công việc</h1>
       </header>
-        
+      {/* MAIN FORM */}
+      <div className="flex-1 min-w-[680px] max-w-5xl">
+      
+      <div className="flex-1 min-w-[680px] max-w-5xl">
+         
 
         <div className="bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-400 text-base rounded-xl shadow-md p-5 mb-6 min-h-[150px]">
           <p><strong className="text-indigo-900">Tên công việc:</strong> <span className="font-semibold text-purple-800">{task['Tên công việc']}</span></p>
@@ -153,7 +188,8 @@ const BaoCaoPage = () => {
         </div>
       </aside>
     </div>
-  );
+    </div>
+);
 };
 
 export default BaoCaoPage;
