@@ -201,7 +201,12 @@ const getDeadlineStatusClass = (dateStr) => {
                     <React.Fragment key={index}>
                       <tr className="hover:bg-indigo-50 transition cursor-pointer">
                         <td className="px-4 py-3 w-10 text-center">{taskList.indexOf(task) + 1}</td>
-                        <td className="px-4 py-3 text-blue-600 hover:underline" onClick={() => toggleForm(index, task)}>{task['Tên công việc']}</td>
+                        <td
+                          className="px-4 py-3 text-blue-600 hover:underline"
+                          onClick={() => navigate(`/report/${task.id || index}`)}
+                        >
+                          {task['Tên công việc']}
+                        </td>
                         <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
                         <td className="px-4 py-3">
                           <span className={`inline-block px-3 py-1 w-24 rounded-full text-xs font-medium shadow-sm ${getDeadlineStatusClass(task['Tiến độ'])}`}>
