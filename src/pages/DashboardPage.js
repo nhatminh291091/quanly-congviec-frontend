@@ -20,6 +20,10 @@ const DashboardPage = () => {
   const [error, setError] = useState(null);
   const [activeFormIndex, setActiveFormIndex] = useState(null);
   const [formData, setFormData] = useState({});
+  const [filterLinhVuc, setFilterLinhVuc] = useState('');
+  const [filterDanhGia, setFilterDanhGia] = useState('');
+  const [filterChuTri, setFilterChuTri] = useState('');
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +35,7 @@ const DashboardPage = () => {
         if (!Array.isArray(rawData)) {
           throw new Error('Invalid data format received');
         }
-        
+
         const tasks = rawData.flat().map((task, index) => {
           if (!task['Tên công việc']) {
             console.warn(`Task at index ${index} is missing required fields`);
@@ -108,6 +112,13 @@ const DashboardPage = () => {
     return year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth() + 1);
   };
 
+  const filteredTasks = taskList.filter(task => {
+    const matchLinhVuc = filterLinhVuc ? task['Các lĩnh vực công tác'] === filterLinhVuc : true;
+    const matchDanhGia = filterDanhGia ? (task['Đánh giá kết quả'] || '').toLowerCase() === filterDanhGia.toLowerCase() : true;
+    const matchChuTri = filterChuTri ? task['Người chủ trì'] === filterChuTri : true;
+    return matchLinhVuc && matchDanhGia && matchChuTri;
+  });
+
   return (
     <div className="flex flex-col flex-1">
       <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 text-white shadow-md">
@@ -120,7 +131,7 @@ const DashboardPage = () => {
             Lỗi: {error}
           </div>
         )}
-        
+
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
@@ -130,6 +141,31 @@ const DashboardPage = () => {
             <h2 className="text-2xl font-bold text-indigo-700 mb-6 flex items-center gap-2">
               📋 <span>Danh sách công việc được giao</span>
             </h2>
+
+            <div className="flex flex-wrap gap-4 mb-4">
+              <select onChange={(e) => setFilterLinhVuc(e.target.value)} className="border p-2 rounded w-52">
+                <option value="">🔎 Lọc theo lĩnh vực</option>
+                {[...new Set(taskList.map(t => t['Các lĩnh vực công tác']))].filter(Boolean).map((lv, i) => (
+                  <option key={i} value={lv}>{lv}</option>
+                ))}
+              </select>
+
+              <select onChange={(e) => setFilterDanhGia(e.target.value)} className="border p-2 rounded w-52">
+                <option value="">🔎 Lọc theo đánh giá</option>
+                <option value="Hoàn thành">Hoàn thành</option>
+                <option value="Theo tiến độ">Theo tiến độ</option>
+                <option value="Chậm tiến độ">Chậm tiến độ</option>
+                <option value="Không hoàn thành">Không hoàn thành</option>
+                <option value="Chưa đánh giá">Chưa đánh giá</option>
+              </select>
+
+              <select onChange={(e) => setFilterChuTri(e.target.value)} className="border p-2 rounded w-52">
+                <option value="">🔎 Lọc theo chủ trì</option>
+                {[...new Set(taskList.map(t => t['Người chủ trì']))].filter(Boolean).map((ct, i) => (
+                  <option key={i} value={ct}>{ct}</option>
+                ))}
+              </select>
+            </div>
 
             <p className="text-sm text-gray-700 italic mb-4">
               👉 Click vào tên công việc để cập nhật báo cáo thực hiện công việc.
@@ -149,10 +185,10 @@ const DashboardPage = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {taskList.map((task, index) => (
+                  {filteredTasks.map((task, index) => (
                     <React.Fragment key={index}>
                       <tr className="hover:bg-indigo-50 transition cursor-pointer">
-                        <td className="px-4 py-3 w-10 text-center">{index + 1}</td>
+                        <td className="px-4 py-3 w-10 text-center">{taskList.indexOf(task) + 1}</td>
                         <td className="px-4 py-3 text-blue-600 hover:underline" onClick={() => toggleForm(index, task)}>{task['Tên công việc']}</td>
                         <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
                         <td className="px-4 py-3">
