@@ -1,3 +1,4 @@
+// 📄 BaoCaoPage.js
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
@@ -19,11 +20,20 @@ const BaoCaoPage = () => {
 
   useEffect(() => {
     const fetchTask = async () => {
-      const rawData = await apiService.get('api/tasks');
-      const flatData = rawData.flat();
-      const currentTask = flatData.find((t, index) => t.id == id || index.toString() === id);
-      if (currentTask) {
-        setTask(currentTask);
+      try {
+        const rawData = await apiService.get('api/tasks');
+        const flatData = rawData.flat();
+        console.log('📦 Dữ liệu công việc:', flatData);
+        console.log('🔍 ID từ URL:', id);
+
+        const currentTask = flatData.find((_, index) => index.toString() === id);
+        console.log('✅ Công việc tìm được:', currentTask);
+
+        if (currentTask) {
+          setTask(currentTask);
+        }
+      } catch (error) {
+        console.error('❌ Lỗi khi tải công việc:', error);
       }
     };
     if (id) fetchTask();
@@ -39,7 +49,11 @@ const BaoCaoPage = () => {
     navigate('/');
   };
 
-  if (!task) return <div className="p-8">Đang tải công việc...</div>;
+  if (!task) return (
+    <div className="p-8 text-red-600">
+      ❌ Không tìm thấy công việc tương ứng với ID: {id}
+    </div>
+  );
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
