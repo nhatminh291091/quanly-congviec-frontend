@@ -1,4 +1,4 @@
-// ✅ BẢN CẬP NHẬT GIAO DIỆN: Báo cáo công việc có sidebar bên phải cố định hiển thị các công việc chưa báo cáo
+// ✅ BẢN CẬP NHẬT HOÀN THIỆN: Báo cáo công việc với khung thông tin nổi bật + sidebar bên phải
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
@@ -31,11 +31,14 @@ const BaoCaoPage = () => {
         const fallback = state?.task || flatTasks.find((t, i) => i === parseInt(id));
         if (fallback) setTask(fallback);
 
-        const staffRes = await apiService.get('api/staff');
-        const staffNames = staffRes.flat().map(s => s['Tên chuyên viên']).filter(Boolean);
-        setStaffList(staffNames);
+        const staffSheetURL = 'https://docs.google.com/spreadsheets/d/115UfbCJLmv0RADrEHLgcBX4Ci5lWDmMTW8oc5db7uzs/gviz/tq?tqx=out:json&sheet=DULIEU';
+        const res = await fetch(staffSheetURL);
+        const text = await res.text();
+        const json = JSON.parse(text.substring(47).slice(0, -2));
+        const names = json.table.rows.map(row => row.c[4]?.v).filter(Boolean);
+        setStaffList(names);
       } catch (err) {
-        console.error("Lỗi tải dữ liệu:", err);
+        console.error("Lỗi tải dữ liệu nhân sự:", err);
       }
     };
     fetchTasksAndStaff();
@@ -75,7 +78,7 @@ const BaoCaoPage = () => {
       <div className="flex-1 max-w-3xl">
         <h2 className="text-2xl font-bold text-indigo-700 mb-6 flex items-center gap-2">📝 Báo cáo công việc</h2>
 
-        <div className="bg-indigo-50 border border-indigo-300 shadow p-4 mb-6 rounded-xl text-sm">
+        <div className="bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-300 shadow-lg p-4 mb-6 rounded-xl text-sm">
           <p><strong className="text-indigo-700">Tên công việc:</strong> {task['Tên công việc']}</p>
           <p><strong className="text-indigo-700">Lĩnh vực:</strong> {task['Các lĩnh vực công tác']}</p>
           <p><strong className="text-indigo-700">Người chủ trì:</strong> {task['Người chủ trì']}</p>
@@ -123,7 +126,7 @@ const BaoCaoPage = () => {
       </div>
 
       {/* SIDEBAR CỐ ĐỊNH */}
-      <aside className="w-80 bg-white/70 rounded-xl shadow-md border border-indigo-100 p-4 h-fit">
+      <aside className="w-80 bg-white/70 rounded-xl shadow-md border border-indigo-100 p-4 h-fit sticky top-10">
         <h3 className="text-lg font-semibold text-indigo-700 mb-3">📌 Các công việc chưa có báo cáo</h3>
         <div className="flex flex-col gap-2 text-sm">
           {tasksChuaBaoCao.map((t, idx) => (
@@ -132,7 +135,7 @@ const BaoCaoPage = () => {
               onClick={() => navigate(`/bao-cao?id=${t.id || idx}`, { state: { task: t } })}
               className="p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-indigo-50 hover:text-indigo-700"
             >
-              <div className="font-medium">{t['Tên công việc']}</div>
+              <div className="font-medium line-clamp-2">{t['Tên công việc']}</div>
               <div className="text-xs text-gray-500">{t['Các lĩnh vực công tác']} - {t['Người chủ trì']}</div>
             </div>
           ))}
