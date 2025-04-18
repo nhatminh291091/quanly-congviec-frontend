@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import KeHoachPage from './pages/KeHoachPage';
-import ReportPage from './pages/ReportPage';
+import ReportsPage from './pages/ReportsPage';
 function App() {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
@@ -19,7 +19,7 @@ function App() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/ke-hoach" element={<KeHoachPage />} />
-            <Route pathh="/report/:id" element={<ReportPage />} />
+            <Route pathh="/report/:id" element={<ReportsPage />} />
           </Routes>
         </main>
       </div>
