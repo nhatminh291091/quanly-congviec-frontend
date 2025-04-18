@@ -1,4 +1,3 @@
-// 📄 BaoCaoPage.js
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
@@ -9,6 +8,7 @@ const BaoCaoPage = () => {
   const id = queryParams.get('id');
   const navigate = useNavigate();
   const state = location.state;
+
   const [task, setTask] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -19,10 +19,25 @@ const BaoCaoPage = () => {
   });
 
   useEffect(() => {
-  if (state && state.task) {
-    setTask(state.task);
-  }
-}, [state]);
+    if (state && state.task) {
+      setTask(state.task);
+    } else {
+      // fallback nếu user F5 hoặc mở trực tiếp
+      const fetchTask = async () => {
+        try {
+          const rawData = await apiService.get('api/tasks');
+          const flatData = rawData.flat();
+          const fallbackTask = flatData.find((_, index) => index.toString() === id);
+          if (fallbackTask) {
+            setTask(fallbackTask);
+          }
+        } catch (err) {
+          console.error('❌ Lỗi tải công việc:', err);
+        }
+      };
+      fetchTask();
+    }
+  }, [state, id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
