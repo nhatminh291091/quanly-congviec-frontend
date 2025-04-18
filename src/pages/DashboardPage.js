@@ -105,6 +105,18 @@ const DashboardPage = () => {
     const today = new Date();
     return month === today.getMonth() + 1 && year === today.getFullYear();
   };
+const getDeadlineStatusClass = (dateStr) => {
+  if (!dateStr) return 'bg-gray-100 text-gray-500';
+  const [day, month, year] = dateStr.split('/').map(Number);
+  const deadline = new Date(year, month - 1, day);
+  const today = new Date();
+  const diffTime = deadline - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return 'bg-red-100 text-red-800'; // Quá hạn
+  if (diffDays <= 3) return 'bg-orange-100 text-orange-800'; // Gần đến hạn
+  return 'bg-green-100 text-green-800'; // Còn xa
+};
 
   const isPastMonth = (dateStr) => {
     const [day, month, year] = dateStr.split('/').map(Number);
@@ -192,9 +204,7 @@ const DashboardPage = () => {
                         <td className="px-4 py-3 text-blue-600 hover:underline" onClick={() => toggleForm(index, task)}>{task['Tên công việc']}</td>
                         <td className="px-4 py-3">{task['Các lĩnh vực công tác']}</td>
                         <td className="px-4 py-3">
-                          <span className={`inline-block px-3 py-1 w-20 rounded-full text-xs font-medium
-                            ${isCurrentMonth(task['Tiến độ']) ? 'bg-yellow-100 text-yellow-800' :
-                              isPastMonth(task['Tiến độ']) ? 'bg-gray-100 border border-gray-400 text-gray-700' : ''}`}>
+                          <span className={`inline-block px-3 py-1 w-24 rounded-full text-xs font-medium shadow-sm ${getDeadlineStatusClass(task['Tiến độ'])}`}>
                             {task['Tiến độ']}
                           </span>
                         </td>
