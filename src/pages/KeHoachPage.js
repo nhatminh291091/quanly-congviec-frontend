@@ -36,24 +36,26 @@ const KeHoachPage = () => {
     return `${dd}/${mm}/${yyyy}`;
   };
 
+  const filterByCurrentMonth = (tasks) => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    return tasks.filter(task => {
+      const d1 = parseDMY(task['Tiến độ']);
+      const d2 = parseDMY(task['Thời gian hoàn thành']);
+      return (
+        (d1 && d1.getMonth() === currentMonth && d1.getFullYear() === currentYear) ||
+        (d2 && d2.getMonth() === currentMonth && d2.getFullYear() === currentYear)
+      );
+    });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const allTasks = await apiService.get('api/tasks');
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-
-        const filtered = allTasks.filter(task => {
-          const d1 = parseDMY(task['Tiến độ']);
-          const d2 = parseDMY(task['Thời gian hoàn thành']);
-          return (
-            (d1 && d1.getMonth() === currentMonth && d1.getFullYear() === currentYear) ||
-            (d2 && d2.getMonth() === currentMonth && d2.getFullYear() === currentYear)
-          );
-        });
-
-        setTasks(filtered);
+        setTasks(filterByCurrentMonth(allTasks));
 
         const dulieuRes = await apiService.get('api/sheets/dulieu');
         setDulieu(dulieuRes);
@@ -82,29 +84,28 @@ const KeHoachPage = () => {
   const [error, setError] = useState(null);
 
   const validateForm = () => {
-  if (!formData.tenCongViec.trim()) {
-    alert('Vui lòng nhập tên công việc');
-    return false;
-  }
-  if (!formData.linhVuc) {
-    alert('Vui lòng chọn lĩnh vực');
-    return false;
-  }
-  if (!formData.tienDo) {
-    alert('Vui lòng chọn tiến độ');
-    return false;
-  }
-  if (!formData.chuTri) {
-    alert('Vui lòng chọn người chủ trì');
-    return false;
-  }
-  if (formData.nguoiThucHien.length === 0) {
-    alert('Vui lòng chọn ít nhất một người thực hiện');
-    return false;
-  }
-  return true;
-};
-
+    if (!formData.tenCongViec.trim()) {
+      alert('Vui lòng nhập tên công việc');
+      return false;
+    }
+    if (!formData.linhVuc) {
+      alert('Vui lòng chọn lĩnh vực');
+      return false;
+    }
+    if (!formData.tienDo) {
+      alert('Vui lòng chọn tiến độ');
+      return false;
+    }
+    if (!formData.chuTri) {
+      alert('Vui lòng chọn người chủ trì');
+      return false;
+    }
+    if (formData.nguoiThucHien.length === 0) {
+      alert('Vui lòng chọn ít nhất một người thực hiện');
+      return false;
+    }
+    return true;
+  };
 
   const resetForm = () => {
     setFormData({
@@ -119,28 +120,28 @@ const KeHoachPage = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       const payload = {
-  tenCongViec: formData.tenCongViec,
-  linhVuc: formData.linhVuc,
-  tienDo: formatDate(formData.tienDo),
-  chuTri: formData.chuTri,
-  thoiGianHoanThanh: formData.thoiGianHoanThanh ? formatDate(formData.thoiGianHoanThanh) : '',
-  nguoiThucHien: formData.nguoiThucHien
-};
-await apiService.post('api/tasks/add', payload);
+        tenCongViec: formData.tenCongViec,
+        linhVuc: formData.linhVuc,
+        tienDo: formatDate(formData.tienDo),
+        chuTri: formData.chuTri,
+        thoiGianHoanThanh: formData.thoiGianHoanThanh ? formatDate(formData.thoiGianHoanThanh) : '',
+        nguoiThucHien: formData.nguoiThucHien
+      };
+
+      await apiService.post('api/tasks/add', payload);
 
       alert('✅ Công việc đã được lưu!');
       setShowForm(false);
       resetForm();
-      
-      // Refresh tasks list without page reload
-      const newTasks = await apiService.get('api/tasks');
-      setTasks(newTasks);
+
+      const allTasks = await apiService.get('api/tasks');
+      setTasks(filterByCurrentMonth(allTasks));
     } catch (error) {
       console.error('❌ Lỗi khi lưu công việc:', error);
       setError('Đã có lỗi xảy ra khi lưu công việc.');
@@ -148,7 +149,6 @@ await apiService.post('api/tasks/add', payload);
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="flex flex-col flex-1">
       <header className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-green-400 via-blue-400 to-purple-500 text-white shadow-md">
