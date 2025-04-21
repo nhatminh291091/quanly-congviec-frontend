@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
@@ -16,7 +15,8 @@ const BaoCaoPage = () => {
     issues: '',
     completionDate: '',
     suggestions: '',
-    nguoiThucHien: []
+    nguoiThucHien: [],
+    danhGia: ''
   });
   const [allTasks, setAllTasks] = useState([]);
   const [staffList, setStaffList] = useState([]);
@@ -62,9 +62,31 @@ const BaoCaoPage = () => {
     }
   };
 
-  const handleSubmit = () => {
-    alert('Gửi báo cáo thành công (giả lập)');
-    navigate('/');
+  const formatDate = (isoDate) => {
+    if (!isoDate) return '';
+    const d = new Date(isoDate);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await apiService.post('api/tasks/update-bao-cao', {
+        tenCongViec: task['Tên công việc'],
+        moTa: formData.description,
+        tonTai: formData.issues,
+        thoiGian: formatDate(formData.completionDate),
+        deXuat: formData.suggestions,
+        danhGia: formData.danhGia
+      });
+      alert('✅ Gửi báo cáo thành công!');
+      navigate('/');
+    } catch (err) {
+      console.error('❌ Lỗi gửi báo cáo:', err);
+      alert('❌ Không thể gửi báo cáo');
+    }
   };
 
   const tasksChuaBaoCao = allTasks.filter(t => {
@@ -128,6 +150,16 @@ const BaoCaoPage = () => {
                     <label className="block font-medium mb-1">Đề xuất, kiến nghị</label>
                     <textarea name="suggestions" value={formData.suggestions} onChange={handleChange} className="w-full border rounded p-2" rows="2" />
                   </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block font-medium mb-1">Đánh giá kết quả</label>
+                  <select name="danhGia" value={formData.danhGia} onChange={handleChange} className="w-full border rounded p-2">
+                    <option value="">-- Chọn --</option>
+                    <option value="Hoàn thành">Hoàn thành</option>
+                    <option value="Theo tiến độ">Theo tiến độ</option>
+                    <option value="Chậm tiến độ">Chậm tiến độ</option>
+                    <option value="Không hoàn thành">Không hoàn thành</option>
+                  </select>
                 </div>
                 <button onClick={handleSubmit} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Gửi báo cáo</button>
               </div>
