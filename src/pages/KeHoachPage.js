@@ -82,32 +82,29 @@ const KeHoachPage = () => {
   const [error, setError] = useState(null);
 
   const validateForm = () => {
-    if (!formData.tenCongViec.trim()) {
-      alert('Vui lòng nhập tên công việc');
-      return false;
-    }
-    if (!formData.linhVuc) {
-      alert('Vui lòng chọn lĩnh vực');
-      return false;
-    }
-    if (!formData.tienDo) {
-      alert('Vui lòng chọn tiến độ');
-      return false;
-    }
-    if (!formData.chuTri) {
-      alert('Vui lòng chọn người chủ trì');
-      return false;
-    }
-    if (!formData.thoiGianHoanThanh) {
-      alert('Vui lòng chọn thời gian hoàn thành');
-      return false;
-    }
-    if (formData.nguoiThucHien.length === 0) {
-      alert('Vui lòng chọn ít nhất một người thực hiện');
-      return false;
-    }
-    return true;
-  };
+  if (!formData.tenCongViec.trim()) {
+    alert('Vui lòng nhập tên công việc');
+    return false;
+  }
+  if (!formData.linhVuc) {
+    alert('Vui lòng chọn lĩnh vực');
+    return false;
+  }
+  if (!formData.tienDo) {
+    alert('Vui lòng chọn tiến độ');
+    return false;
+  }
+  if (!formData.chuTri) {
+    alert('Vui lòng chọn người chủ trì');
+    return false;
+  }
+  if (formData.nguoiThucHien.length === 0) {
+    alert('Vui lòng chọn ít nhất một người thực hiện');
+    return false;
+  }
+  return true;
+};
+
 
   const resetForm = () => {
     setFormData({
@@ -128,15 +125,15 @@ const KeHoachPage = () => {
     
     try {
       const payload = {
-        "Tên công việc": formData.tenCongViec,
-        "Các lĩnh vực công tác": formData.linhVuc,
-        "Tiến độ": formatDate(formData.tienDo),
-        "Người chủ trì": formData.chuTri,
-        "Thời gian hoàn thành": formatDate(formData.thoiGianHoanThanh),
-        "Người thực hiện": formData.nguoiThucHien.join('; ')
-      };
+  tenCongViec: formData.tenCongViec,
+  linhVuc: formData.linhVuc,
+  tienDo: formatDate(formData.tienDo),
+  chuTri: formData.chuTri,
+  thoiGianHoanThanh: formData.thoiGianHoanThanh ? formatDate(formData.thoiGianHoanThanh) : '',
+  nguoiThucHien: formData.nguoiThucHien
+};
+await apiService.post('api/tasks/add', payload);
 
-      await apiService.post('api/tasks/add', payload);
       alert('✅ Công việc đã được lưu!');
       setShowForm(false);
       resetForm();
