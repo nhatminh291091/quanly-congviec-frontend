@@ -75,6 +75,7 @@ const BaoCaoPage = () => {
     try {
       await apiService.post('api/tasks/update-bao-cao', {
         tenCongViec: task['Tên công việc'],
+	tienDo: task['Tiến độ'],
         moTa: formData.description,
         tonTai: formData.issues,
         thoiGian: formatDate(formData.completionDate),
