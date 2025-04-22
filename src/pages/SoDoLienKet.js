@@ -1,51 +1,79 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const SoDoLienKet = () => {
-  const containerRef = useRef(null);
+export default function SoDoLienKet() {
+  const [docs, setDocs] = useState([]);
+  const [selectedDoc, setSelectedDoc] = useState(null);
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js";
-    script.onload = async () => {
-      if (window.mermaid) {
-        window.mermaid.initialize({ startOnLoad: false });
-
-        const diagram = `
-          graph TD
-            A[Quy chế tổ chức và hoạt động] --> B[Quy chế làm việc]
-            C[Quy chế quản lý tài chính] --> B
-            D[Quy chế thực hiện dân chủ] --> B
-            B --> B1[Quy chế Khoa học và Công nghệ]
-            B --> B2[Quy chế chi tiêu nội bộ]
-            B --> B3[Quy chế quản lý lưu học sinh]
-            B --> B4[Quy chế quản lý văn bản, chứng chỉ]
-            E[Quy định chức năng, nhiệm vụ, cơ cấu tổ chức] --> B
-            F[Quyết định thành lập các đơn vị] --> B
-        `;
-
-        try {
-          const { svg } = await window.mermaid.render("myDiagram", diagram);
-          if (containerRef.current) {
-            containerRef.current.innerHTML = svg;
-          }
-        } catch (err) {
-          console.error("Mermaid render failed:", err);
-        }
-      }
-    };
-    document.body.appendChild(script);
+    fetch('/api/tonghop') // gọi API đã setup sẵn lấy từ sheet TONGHOP
+      .then(res => res.json())
+      .then(data => setDocs(data))
+      .catch(err => console.error('Lỗi tải dữ liệu:', err));
   }, []);
 
+  const capLabels = {
+    I: 'Văn bản cấp I',
+    II: 'Văn bản cấp II',
+    III: 'Văn bản cấp III',
+    IV: 'Văn bản cấp IV',
+    V: 'Văn bản cấp V'
+  };
+
+  // Nhóm văn bản theo cấp
+  const grouped = docs.reduce((acc, item) => {
+    const cap = item.cap?.toUpperCase() || 'Khác';
+    if (!acc[cap]) acc[cap] = [];
+    acc[cap].push(item);
+    return acc;
+  }, {});
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-blue-800 mb-6">Sơ đồ liên kết văn bản</h1>
-      <div
-        ref={containerRef}
-        className="bg-white p-4 rounded-xl shadow-md overflow-x-auto"
-        style={{ minHeight: '300px' }}
-      />
+    <div className="min-h-screen bg-gray-50 p-6">
+      <h1 className="text-3xl font-bold text-center text-indigo-700 mb-8">Sơ đồ liên kết văn bản</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {['I', 'II', 'III', 'IV', 'V'].map(cap => (
+          <motion.div
+            key={cap}
+            className="bg-white border shadow rounded-2xl p-4"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <h2 className="text-xl font-semibold text-indigo-600 mb-3">{capLabels[cap]}</h2>
+            <ul className="space-y-2">
+              {(grouped[cap] || []).map((doc, idx) => (
+                <li
+                  key={idx}
+                  className="cursor-pointer text-blue-600 hover:underline"
+                  onClick={() => setSelectedDoc(doc)}
+                >
+                  {doc.ten}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {selectedDoc && (
+          <motion.div
+            className="fixed bottom-6 right-6 w-full max-w-md bg-white border border-indigo-200 rounded-2xl shadow-xl p-6"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+          >
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-bold text-indigo-700">Chi tiết văn bản</h3>
+              <button onClick={() => setSelectedDoc(null)} className="text-red-500">✕</button>
+            </div>
+            <p className="text-gray-800 font-semibold mb-2">{selectedDoc.ten}</p>
+            <p className="text-gray-600 text-sm whitespace-pre-line">{selectedDoc.mota || 'Chưa có mô tả chi tiết.'}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-};
-
-export default SoDoLienKet;
+}
